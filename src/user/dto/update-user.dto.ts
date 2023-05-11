@@ -10,8 +10,6 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
     @IsNotEmpty()
     address: string;
 
-    @IsNotEmpty()
-    user_name: string;
 
     @IsNotEmpty()
     password: string;

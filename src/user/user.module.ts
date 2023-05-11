@@ -10,6 +10,7 @@ import { MulterModule } from '@nestjs/platform-express';
   MulterModule.register({ dest: './upload' }),
   ],
   controllers: [UserController],
-  providers: [UserService]
+  providers: [UserService],
+  exports: [TypeOrmModule]
 })
 export class UserModule { }

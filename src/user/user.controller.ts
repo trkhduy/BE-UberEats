@@ -12,9 +12,13 @@ export class UserController {
 
   @Post()
   async create(@Body() createDto: CreateUserDto) {
-    await this.userService.create(createDto);
+    console.log(createDto);
+
+    const user = await this.userService.create(createDto);
     return {
-      message: "them moi tai khoan thanh cong"
+      statuscode: 200,
+      message: "them moi tai khoan thanh cong",
+      result: user
     }
   }
 

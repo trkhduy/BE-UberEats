@@ -8,14 +8,12 @@ export class CreateUserDto {
     address: string;
 
     @IsNotEmpty()
-    user_name: string;
-
-    @IsNotEmpty()
     password: string;
 
     @IsNotEmpty()
     phone: string;
 
+    @IsNotEmpty()
     @IsEmail()
     email: string;
 
