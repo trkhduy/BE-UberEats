@@ -1,5 +1,6 @@
 import { User } from "src/user/entities/user.entity";
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Voucher } from "src/voucher/entities/voucher.entity";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 @Entity('restaurant')
 export class Restaurant {
     @PrimaryGeneratedColumn()
@@ -37,6 +38,8 @@ export class Restaurant {
     @OneToOne(() => User, user => user.restaurant)
     @JoinColumn()
     user: User
+    @OneToMany(() => Voucher, voucher => voucher.restaurant)
+    voucher: Voucher[]
 
 
 }
