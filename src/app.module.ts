@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
+import { RestaurantModule } from './restaurant/restaurant.module';
 
 @Module({
   imports: [
@@ -13,11 +14,12 @@ import { MulterModule } from '@nestjs/platform-express';
       port: 3306,
       username: 'root',
       password: '',
-      database: 'test',
+      database: 'uber',
       autoLoadEntities: true,
       synchronize: true,
     }),
     UserModule,
+    RestaurantModule,
   ],
   controllers: [AppController],
   providers: [AppService],

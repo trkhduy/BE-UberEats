@@ -1,9 +1,10 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Restaurant } from "src/restaurant/entities/restaurant.entity";
+import { BeforeInsert, Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 
-@Entity('user_account')
+@Entity('user')
 export class User {
- 
+
     @PrimaryGeneratedColumn()
     id: number;
     @Column({
@@ -22,13 +23,7 @@ export class User {
     })
     address: string;
 
-    @Column({
-        type: 'varchar',
-        length: 255,
-        charset: 'utf8mb4',
-        collation: 'utf8mb4_unicode_ci',
-    })
-    user_name: string;
+
 
     @Column({
         type: 'varchar',
@@ -74,5 +69,7 @@ export class User {
     @Column({ type: "timestamp", default: () => 'CURRENT_TIMESTAMP' })
     update_at: Date
 
-   
+    @OneToOne(() => Restaurant, restaurant => restaurant.user)
+    restaurant: Restaurant
 }
+
