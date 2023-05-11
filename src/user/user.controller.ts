@@ -17,7 +17,7 @@ export class UserController {
     const user = await this.userService.create(createDto);
     return {
       statuscode: 200,
-      message: "them moi tai khoan thanh cong",
+      message: "thêm mới tài khoản thành công",
       result: user
     }
   }
