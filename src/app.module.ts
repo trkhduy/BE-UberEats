@@ -6,6 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
 import { RestaurantModule } from './restaurant/restaurant.module';
 
+import { VoucherModule } from './voucher/voucher.module';
+
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -20,6 +22,7 @@ import { RestaurantModule } from './restaurant/restaurant.module';
     }),
     UserModule,
     RestaurantModule,
+    VoucherModule,
   ],
   controllers: [AppController],
   providers: [AppService],
