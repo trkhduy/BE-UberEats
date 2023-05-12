@@ -5,7 +5,7 @@ import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { Restaurant } from './entities/restaurant.entity';
 import { UpdateResult } from 'typeorm';
 
-@Controller('restaurant')
+@Controller('api/restaurant')
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) { }
 

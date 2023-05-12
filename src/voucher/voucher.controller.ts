@@ -5,7 +5,7 @@ import { UpdateVoucherDto } from './dto/update-voucher.dto';
 import { Voucher } from './entities/voucher.entity';
 
 
-@Controller('voucher')
+@Controller('api/voucher')
 export class VoucherController {
   constructor(private readonly voucherService: VoucherService) { }
 

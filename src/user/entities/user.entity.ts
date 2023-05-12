@@ -1,5 +1,6 @@
 import { Restaurant } from "src/restaurant/entities/restaurant.entity";
-import { BeforeInsert, Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { UserAddress } from "src/user_address/entities/user_address.entity";
+import { BeforeInsert, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 
 @Entity('user')
@@ -71,5 +72,7 @@ export class User {
 
     @OneToOne(() => Restaurant, restaurant => restaurant.user)
     restaurant: Restaurant
+    @OneToMany(() => UserAddress, user_address => user_address.user)
+    user_address: UserAddress[]
 }
 
