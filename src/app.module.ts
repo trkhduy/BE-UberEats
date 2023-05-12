@@ -7,6 +7,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { RestaurantModule } from './restaurant/restaurant.module';
 
 import { VoucherModule } from './voucher/voucher.module';
+import { UserAddressModule } from './user_address/user_address.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { VoucherModule } from './voucher/voucher.module';
     UserModule,
     RestaurantModule,
     VoucherModule,
+    UserAddressModule,
   ],
   controllers: [AppController],
   providers: [AppService],
