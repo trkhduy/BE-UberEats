@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { User } from './entities/user.entity';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('api/user')
 export class UserController {
@@ -12,8 +13,6 @@ export class UserController {
 
   @Post()
   async create(@Body() createDto: CreateUserDto) {
-    console.log(createDto);
-
     const user = await this.userService.create(createDto);
     return {
       statuscode: 200,
@@ -22,6 +21,7 @@ export class UserController {
     }
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(): Promise<User[]> {
     return await this.userService.findAll();

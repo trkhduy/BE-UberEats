@@ -62,7 +62,7 @@ export class User {
     role: number;
 
     @Column()
-    rf_token: string;
+    refresh_token: string;
 
     @Column({ type: "timestamp", default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date

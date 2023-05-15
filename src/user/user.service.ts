@@ -4,7 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt'
 
 @Injectable()
 export class UserService {
@@ -16,8 +16,18 @@ export class UserService {
     if (email) {
       throw new ConflictException('trùng email rồi bạn ơi')
     }
-    const user = await this.userrepository.save(data);
-    return user
+    const passwordHashed = bcrypt.hashSync(data.password, 10)
+    console.log(passwordHashed);
+    try {
+      const user = await this.userrepository.save({
+        ...data,
+        password: passwordHashed
+      });
+      delete user.password
+      return user
+    } catch (error) {
+      return error
+    }
   }
 
   async findAll(): Promise<User[]> {
