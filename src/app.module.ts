@@ -8,6 +8,7 @@ import { RestaurantModule } from './restaurant/restaurant.module';
 
 import { VoucherModule } from './voucher/voucher.module';
 import { UserAddressModule } from './user_address/user_address.module';
+import { ProductModule } from './product/product.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { UserAddressModule } from './user_address/user_address.module';
     RestaurantModule,
     VoucherModule,
     UserAddressModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [AppService],

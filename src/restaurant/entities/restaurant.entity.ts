@@ -1,3 +1,4 @@
+import { Product } from "src/product/entities/product.entity";
 import { User } from "src/user/entities/user.entity";
 import { Voucher } from "src/voucher/entities/voucher.entity";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
@@ -41,6 +42,8 @@ export class Restaurant {
     @OneToMany(() => Voucher, voucher => voucher.restaurant)
     voucher: Voucher[]
 
+    @OneToMany(() => Product, product => product.restaurant)
+    product: Product[]
 
 }
 

@@ -22,13 +22,13 @@ export class VoucherController {
   }
 
   @Get()
-  findAll(): Promise<Voucher[]> {
-    return this.voucherService.findAll();
+  async findAll(): Promise<Voucher[]> {
+    return await this.voucherService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Voucher> {
-    return this.voucherService.findOne(+id);
+  async findOne(@Param('id') id: string): Promise<Voucher> {
+    return await this.voucherService.findOne(+id);
   }
 
   @Put(':id')

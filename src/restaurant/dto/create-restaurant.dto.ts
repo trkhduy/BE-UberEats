@@ -16,8 +16,8 @@ export class CreateRestaurantDto {
     @IsPhoneNumber('VN', {
         message: "Số điện thoại chưa đúng định dạng"
     })
-
     phone: string;
+
 
 
 
