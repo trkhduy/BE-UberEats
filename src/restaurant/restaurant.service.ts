@@ -27,7 +27,9 @@ export class RestaurantService {
   }
 
   async findAll(): Promise<Restaurant[]> {
-    return await this.resRepository.find();
+    return await this.resRepository.find({
+      relations: ['voucher']
+    });
   }
 
   async findOne(id: number): Promise<Restaurant> {
@@ -43,10 +45,19 @@ export class RestaurantService {
   async update(id: number, updateRestaurantDto: UpdateRestaurantDto): Promise<UpdateResult> {
     const check = await this.resRepository.findOne({ where: [{ 'name': updateRestaurantDto.name }] })
     const checkadd = await this.resRepository.findOne({ where: [{ 'address': updateRestaurantDto.address }] })
+    const curRes = await this.resRepository.findOne({ where: [{ 'id': id }] })
     if (check) {
+      if (curRes.name == updateRestaurantDto.name && curRes.address == updateRestaurantDto.address) {
+        const update = await this.resRepository.update(id, updateRestaurantDto)
+        return update
+      }
       throw new ConflictException('đã có nhà hàng này rồi')
     }
     if (checkadd) {
+      if (curRes.name == updateRestaurantDto.name && curRes.address == updateRestaurantDto.address) {
+        const update = await this.resRepository.update(id, updateRestaurantDto)
+        return update
+      }
       throw new ConflictException('trùng địa chỉ với nhà hàng khác rồi')
     }
     const update = await this.resRepository.update(id, updateRestaurantDto)
