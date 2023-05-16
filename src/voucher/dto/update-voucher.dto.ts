@@ -13,6 +13,7 @@ export class UpdateVoucherDto extends PartialType(CreateVoucherDto) {
     @IsNotEmpty({ message: 'Vui lòng không để trống' })
     conditions: string;
 
+    @IsNotEmpty({ message: 'Vui lòng không để trống' })
+    restaurantid: number;
 
-    
 }
