@@ -12,7 +12,7 @@ import { Product } from './entities/product.entity';
 export class ProductController {
   constructor(private readonly productService: ProductService) { }
 
-  @Post(':restaurantid')
+  @Post(':restaurantid/:categoryid')
   @UseInterceptors(
     FileInterceptor('images', {
       storage: diskStorage({
@@ -26,7 +26,7 @@ export class ProductController {
     })
   )
   async create(
-    @Param('restaurantid') restaurantid: number,
+    @Param('restaurantid') restaurantid: number, @Param('categoryid') categoryid: number,
     @UploadedFile(new ParseFilePipe({
       fileIsRequired: true,
     })
@@ -38,7 +38,7 @@ export class ProductController {
       throw new BadRequestException('thiếu ảnh r kìa');
     }
     createProductDto.images = images.filename;
-    const res = await this.productService.create(restaurantid, createProductDto);
+    const res = await this.productService.create(restaurantid, categoryid, createProductDto);
     return {
       statuscode: 200,
       message: "thêm mới thành công",

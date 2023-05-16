@@ -10,6 +10,7 @@ import { VoucherModule } from './voucher/voucher.module';
 import { UserAddressModule } from './user_address/user_address.module';
 import { ProductModule } from './product/product.module';
 import { AuthModule } from './auth/auth.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { AuthModule } from './auth/auth.module';
     UserAddressModule,
     ProductModule,
     AuthModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

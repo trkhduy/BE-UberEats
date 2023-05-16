@@ -39,17 +39,33 @@ export class VoucherService {
     return check
   }
 
-  async update(id: number, updatevouhertDto: UpdateVoucherDto): Promise<UpdateResult> {
-    const check = await this.voucherRepository.findOne({ where: [{ 'name': updatevouhertDto.name }] })
+  async update(id: number, updateVoucherDto: UpdateVoucherDto): Promise<any> {
+    const check = await this.voucherRepository.findOne({ where: [{ 'name': updateVoucherDto.name }] })
+    const curPro = await this.voucherRepository.findOne({ where: [{ 'id': id }] })
+    const restaurant = await this.resRepository.findOne({ where: [{ 'id': updateVoucherDto.restaurantid }] })
 
+
+    await delete updateVoucherDto.restaurantid
     if (check) {
-      throw new ConflictException('đã có voucher này rồi 3!!!')
+      if (curPro.name == updateVoucherDto.name) {
+        let dataUpdate = {
+          id: id,
+          ...updateVoucherDto,
+          restaurant: restaurant,
+
+        };
+        return await this.voucherRepository.update(id, dataUpdate)
+      }
+      throw new ConflictException('đã có món ăn này rồi rồi')
     }
-
-    const update = await this.voucherRepository.update(id, updatevouhertDto)
-    return update
+    let dataUpdate = {
+      id: id,
+      ...updateVoucherDto,
+      restaurant: restaurant,
+    };
+    return await this.voucherRepository.update(id, dataUpdate)
+    //  this.proRepository.update(id, newPro);
   }
-
   async remove(id: number): Promise<DeleteResult> {
     const destroyed = await this.voucherRepository.delete(id)
     return destroyed

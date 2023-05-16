@@ -1,3 +1,4 @@
+import { Category } from "src/category/entities/category.entity";
 import { Restaurant } from "src/restaurant/entities/restaurant.entity";
 import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
@@ -55,4 +56,7 @@ export class Product {
     @ManyToOne(() => Restaurant, restaurant => restaurant.product)
     @JoinColumn()
     restaurant: Restaurant
+
+    @ManyToOne(() => Category, category => category.product)
+    category: Category
 }

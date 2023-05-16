@@ -5,10 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 
 import { RestaurantModule } from 'src/restaurant/restaurant.module';
+import { CategoryModule } from 'src/category/category.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Product]),
-    RestaurantModule],
+    RestaurantModule,
+    CategoryModule],
   controllers: [ProductController],
   providers: [ProductService],
   exports: [TypeOrmModule]
