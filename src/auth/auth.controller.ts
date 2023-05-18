@@ -5,12 +5,12 @@ import { Request, Response } from "express";
 import { AuthGuard } from "@nestjs/passport";
 
 
-@Controller('api/auth')
+@Controller('api')
 
 export class AuthController {
     constructor(private authService: AuthService) { }
 
-    @Post('login')
+    @Post('user/login')
     async login(@Body() dataLogin: LoginDto, @Res({ passthrough: true }) res: Response) {
         const token = await this.authService.login(dataLogin);
         token && res.cookie('access_token', token.access_token);
@@ -37,7 +37,7 @@ export class AuthController {
     }
 
     @UseGuards(AuthGuard('jwt'))
-    @Post('logout/:id')
+    @Post('user/logout/:id')
     async logOut(@Param('id') id: number, @Res({ passthrough: true }) res: Response) {
 
         this.authService.logOut(id)
