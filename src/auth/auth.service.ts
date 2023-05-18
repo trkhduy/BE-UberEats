@@ -6,6 +6,7 @@ import { User } from "src/user/entities/user.entity";
 import { Repository } from "typeorm";
 import * as bcrypt from "bcrypt"
 
+
 @Injectable()
 export class AuthService {
     constructor(
@@ -60,6 +61,33 @@ export class AuthService {
         } catch (error) {
             return error
         }
+    }
 
+    async reGenerateRefreshToken(userId: number, refreshToken: string) {
+        const user = await this.userRepository.findOne({ where: [{ 'id': userId }] });
+
+        if (!user || !user.refresh_token) {
+            throw new ForbiddenException('access denied')
+        }
+
+        const checkRefreshToken = bcrypt.hashSync(refreshToken, user.refresh_token)
+
+        if (!checkRefreshToken) {
+            throw new ForbiddenException('access denied')
+        }
+
+        const newRefreshToken = await this.createRefeshToken(userId, user.role);
+        const newAccessToken = await this.createAccessToken(userId, user.role);
+
+        await this.updateRefreshToken(userId, newRefreshToken);
+
+        return {
+            access_token: newAccessToken,
+            refresh_token: newRefreshToken
+        }
+    }
+
+    async logOut(id: number) {
+        await this.userRepository.update(id, { refresh_token: null })
     }
 }

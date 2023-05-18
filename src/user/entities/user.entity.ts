@@ -61,7 +61,7 @@ export class User {
     @Column()
     role: number;
 
-    @Column()
+    @Column({ nullable: true })
     refresh_token: string;
 
     @Column({ type: "timestamp", default: () => 'CURRENT_TIMESTAMP' })
