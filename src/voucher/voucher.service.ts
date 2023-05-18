@@ -22,7 +22,10 @@ export class VoucherService {
       ...createVoucherDto,
       restaurant: res
     });
+
     const create = await this.voucherRepository.save(newVoucher)
+    console.log(create)
+
     return create;
   }
 

@@ -27,30 +27,37 @@ export class ProductService {
       restaurant: res,
       category: cate
     });
-
-
     const create = await this.proRepository.save(newPro)
-    console.log(create)
+
     return create;
   }
-
-
   async findAll(): Promise<Product[]> {
+
+
     return await this.proRepository.find({
-      relations: ['restaurant', 'category']
-
+      relations: ['restaurant', 'category'],
     });
-  }
 
+  }
   async findOne(id: number): Promise<Product> {
     const check = await this.proRepository.findOne({ where: [{ id: id }] });
     if (!check) {
       throw new ConflictException('không có món ăn nào tên này')
     }
-
     return check
   }
+  async fillter(categoryid: number) {
 
+    const productByCategory = await this.proRepository.createQueryBuilder('product')
+      .innerJoinAndSelect('product.category', 'category')
+      .where('category.id = :categoryid', { categoryid }).getMany()
+    return productByCategory
+
+  }
+
+  async queryBuiler(alias: string) {
+    return this.proRepository.createQueryBuilder(alias)
+  }
   async update(id: number, updateProDto: UpdateProductDto): Promise<any> {
     const check = await this.proRepository.findOne({ where: [{ 'name': updateProDto.name }] })
     const curPro = await this.proRepository.findOne({ where: [{ 'id': id }] })
@@ -83,4 +90,13 @@ export class ProductService {
     const destroyed = await this.proRepository.delete(id)
     return destroyed
   }
+
+  async searchProducts(keyword: string): Promise<Product[]> {
+    const queryBuilder = this.proRepository.createQueryBuilder('product');
+
+    queryBuilder.where('product.name LIKE :keyword OR product.description LIKE :keyword', { keyword: `%${keyword}%` });
+
+    return queryBuilder.getMany();
+  }
+  
 }

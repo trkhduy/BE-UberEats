@@ -5,11 +5,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { Restaurant } from './entities/restaurant.entity';
 import { User } from 'src/user/entities/user.entity';
+import { Product } from 'src/product/entities/product.entity';
 
 @Injectable()
 export class RestaurantService {
   constructor(@InjectRepository(Restaurant) private readonly resRepository: Repository<Restaurant>,
-    @InjectRepository(User) private readonly userRepository: Repository<User>
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
+
   ) { }
   async create(userId: number, createRestaurantDto: CreateRestaurantDto): Promise<Restaurant> {
     const check = await this.resRepository.findOne({ where: [{ 'name': createRestaurantDto.name }] })
@@ -31,7 +33,9 @@ export class RestaurantService {
       relations: ['voucher']
     });
   }
-
+  async queryBuiler(alias: string) {
+    return this.resRepository.createQueryBuilder(alias)
+  }
   async findOne(id: number): Promise<Restaurant> {
 
     const check = await this.resRepository.findOne({ where: [{ id: id }] });
@@ -67,5 +71,14 @@ export class RestaurantService {
   async remove(id: number): Promise<DeleteResult> {
     const destroyed = await this.resRepository.delete(id)
     return destroyed
+  }
+  async searchRestaurant(keyword: string): Promise<Restaurant[]> {
+    const queryBuilder = this.resRepository.createQueryBuilder('restaurant');
+
+    queryBuilder.where('restaurant.name LIKE :keyword ', { keyword: `%${keyword}%` });
+
+    return queryBuilder.getMany();
+
+
   }
 }

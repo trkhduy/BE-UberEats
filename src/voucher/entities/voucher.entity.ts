@@ -26,6 +26,14 @@ export class Voucher {
     })
     conditions: string;
 
+    @Column({
+        type: 'varchar',
+        length: 255,
+        charset: 'utf8mb4',
+        collation: 'utf8mb4_unicode_ci',
+    })
+    images: string;
+
     @Column({ type: "timestamp", default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date
 
