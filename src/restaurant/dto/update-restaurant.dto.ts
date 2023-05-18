@@ -19,4 +19,8 @@ export class UpdateRestaurantDto extends PartialType(CreateRestaurantDto) {
         message: "Số điện thoại chưa đúng định dạng"
     })
     phone: string;
+
+    @IsNotEmpty({ message: 'Vui lòng không để trống' })
+    userid: number;
+
 }

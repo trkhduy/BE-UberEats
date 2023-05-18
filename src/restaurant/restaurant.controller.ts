@@ -1,11 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseInterceptors, UploadedFile, Query, Req } from '@nestjs/common';
 import { RestaurantService } from './restaurant.service';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { Restaurant } from './entities/restaurant.entity';
-import { UpdateResult } from 'typeorm';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+import { Response, Request } from 'express';
+import * as path from 'path';
 
 @Controller('api/restaurant')
 export class RestaurantController {
@@ -22,10 +21,18 @@ export class RestaurantController {
   }
 
   @Get()
-  async findAll(): Promise<Restaurant[]> {
-    return await this.restaurantService.findAll();
-  }
+  async findAll(@Query('name') keyword: string, @Req() req: Request,): Promise<Restaurant[]> {
+    const builder = await this.restaurantService.queryBuiler('restaurant');
+    const page: number = parseInt(req.query.page as any) || 1;
+    const perPage = 2;
+    builder.offset((page - 1) * perPage).limit(perPage);
+    var restaurant = await builder.getMany()
+    if (keyword) {
+      restaurant = await this.restaurantService.searchRestaurant(keyword)
+    }
 
+    return restaurant;
+  }
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Restaurant> {
     return this.restaurantService.findOne(+id);
