@@ -8,25 +8,14 @@ import { jwtConstants } from "../constants";
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     constructor(private readonly authServive: AuthService) {
         super({
-            // jwtFromRequest: ExtractJwt.fromExtractors([(request: Request) => {
-            //     return request?.cookies?.access_token
-            // }]),
-            // secretOrKey: 'your-secret'
-
             jwtFromRequest: ExtractJwt.fromExtractors([(request: Request) => {
-                console.log(request?.cookies);
-
                 return request?.cookies?.access_token;
             }]),
-            secretOrKey: 'your-secret'
-
+            secretOrKey: jwtConstants.secret,
         })
     }
     async validate(payload: any) {
         const user = await this.authServive.getUserById(payload.sub);
-        // if (!user) {
-        //     throw new UnauthorizedException();
-        // }
         delete user.password;
         return { user };
     }
