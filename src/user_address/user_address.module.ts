@@ -5,9 +5,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserAddress } from './entities/user_address.entity';
 import { UserModule } from 'src/user/user.module';
 
+
 @Module({
   imports: [TypeOrmModule.forFeature([UserAddress]),
     UserModule,
+    
   ],
   controllers: [UserAddressController],
   providers: [UserAddressService]

@@ -1,4 +1,5 @@
 import { Category } from "src/category/entities/category.entity";
+import { OrderDetail } from "src/oder/entities/order_detail.entity";
 import { Restaurant } from "src/restaurant/entities/restaurant.entity";
 import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
@@ -43,7 +44,7 @@ export class Product {
     })
     description: string;
 
-    
+
     @Column({ type: "varchar" })
     images: string
 
@@ -59,4 +60,6 @@ export class Product {
 
     @ManyToOne(() => Category, category => category.product)
     category: Category
+    @OneToOne(() => OrderDetail, order_detail => order_detail.product)
+    order_detail: OrderDetail
 }
