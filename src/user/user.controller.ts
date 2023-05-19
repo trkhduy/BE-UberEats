@@ -11,7 +11,7 @@ export class UserController {
   constructor(private readonly userService: UserService) { }
 
 
-  @Post()
+  @Post('/register')
   async create(@Body() createDto: CreateUserDto) {
     const user = await this.userService.create(createDto);
     return {
@@ -38,4 +38,6 @@ export class UserController {
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
   }
+
+
 }

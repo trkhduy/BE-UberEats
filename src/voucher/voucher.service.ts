@@ -73,4 +73,14 @@ export class VoucherService {
     const destroyed = await this.voucherRepository.delete(id)
     return destroyed
   }
+  async searchProducts(keyword: string): Promise<Voucher[]> {
+    const queryBuilder = this.voucherRepository.createQueryBuilder('voucher');
+
+    queryBuilder.where('voucher.name LIKE :keyword ', { keyword: `%${keyword}%` });
+
+    return queryBuilder.getMany();
+  }
+  async queryBuiler(alias: string) {
+    return this.voucherRepository.createQueryBuilder(alias)
+  }
 }
