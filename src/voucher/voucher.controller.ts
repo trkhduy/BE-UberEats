@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseInterceptors, UploadedFile, ParseFilePipe, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseInterceptors, UploadedFile, ParseFilePipe, BadRequestException, Query, Req } from '@nestjs/common';
 import { VoucherService } from './voucher.service';
 import { CreateVoucherDto } from './dto/create-voucher.dto';
 import { UpdateVoucherDto } from './dto/update-voucher.dto';
 import { Voucher } from './entities/voucher.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Response, Request } from 'express';
 import { diskStorage } from 'multer';
 import * as path from 'path';
 
@@ -46,8 +47,20 @@ export class VoucherController {
   }
 
   @Get()
-  async findAll(): Promise<Voucher[]> {
-    return await this.voucherService.findAll();
+  async findAll(@Query('name') keyword: string, @Query('restaurantid') restaurantid: number, @Req() req: Request,): Promise<Voucher[]> {
+    const builder = (await this.voucherService.queryBuiler('voucher'))
+
+    if (restaurantid) {
+      builder.innerJoinAndSelect('voucher.restaurant', 'restaurant').andWhere('restaurant.id = :restaurantid', { restaurantid })
+      if (keyword) {
+        builder.andWhere('product.name LIKE :keyword', { keyword: `%${keyword}%` });
+      }
+    }
+
+
+
+    return builder.getMany();
+
   }
 
   @Get(':id')
