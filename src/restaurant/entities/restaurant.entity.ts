@@ -1,3 +1,5 @@
+
+import { Order } from "src/oder/entities/order.entity";
 import { Product } from "src/product/entities/product.entity";
 import { User } from "src/user/entities/user.entity";
 import { Voucher } from "src/voucher/entities/voucher.entity";
@@ -44,6 +46,11 @@ export class Restaurant {
 
     @OneToMany(() => Product, product => product.restaurant)
     product: Product[]
+
+    @OneToOne(() => Order, order => order.restaurant)
+    order: Order
+
+    
 
 }
 

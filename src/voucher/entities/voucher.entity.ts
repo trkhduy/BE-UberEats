@@ -1,5 +1,6 @@
+import { OrderDetail } from "src/oder/entities/order_detail.entity";
 import { Restaurant } from "src/restaurant/entities/restaurant.entity";
-import { Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('voucher')
 export class Voucher {
@@ -42,5 +43,8 @@ export class Voucher {
 
     @ManyToOne(() => Restaurant, restaurant => restaurant.voucher)
     restaurant: Restaurant
+    @OneToMany(() => OrderDetail, order_detail => order_detail.voucher)
+
+    order_detail: OrderDetail
 
 }

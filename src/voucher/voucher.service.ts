@@ -15,6 +15,8 @@ export class VoucherService {
   async create(restaurantid: number, createVoucherDto: CreateVoucherDto) {
     const check = await this.voucherRepository.findOne({ where: [{ 'name': createVoucherDto.name }] })
     const res = await this.resRepository.findOne({ where: [{ 'id': restaurantid }] })
+
+
     if (check) {
       throw new ConflictException('đã có voucher này rồi')
     }

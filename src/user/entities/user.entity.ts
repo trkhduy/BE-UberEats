@@ -1,3 +1,4 @@
+import { Order } from "src/oder/entities/order.entity";
 import { Restaurant } from "src/restaurant/entities/restaurant.entity";
 import { UserAddress } from "src/user_address/entities/user_address.entity";
 import { BeforeInsert, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
@@ -67,5 +68,9 @@ export class User {
     restaurant: Restaurant
     @OneToMany(() => UserAddress, user_address => user_address.user)
     user_address: UserAddress[]
+    @OneToMany(() => Order, order => order.user)
+    order: Order[]
+    @OneToMany(() => Order, order => order.driver)
+    order_driver: Order
 }
 

@@ -1,5 +1,7 @@
+
+import { Order } from "src/oder/entities/order.entity";
 import { User } from "src/user/entities/user.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('user_address')
 export class UserAddress {
@@ -42,4 +44,7 @@ export class UserAddress {
     phone: string;
     @ManyToOne(() => User, (user) => user.user_address)
     user: User
+    @OneToOne(() => Order, order => order.user_address)
+    order: Order
+   
 }

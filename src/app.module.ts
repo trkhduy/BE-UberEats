@@ -11,6 +11,8 @@ import { UserAddressModule } from './user_address/user_address.module';
 import { ProductModule } from './product/product.module';
 import { AuthModule } from './auth/auth.module';
 import { CategoryModule } from './category/category.module';
+import { OrderModule } from './oder/order.module';
+import { StatusOderModule } from './status_oder/status_oder.module';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { CategoryModule } from './category/category.module';
     ProductModule,
     AuthModule,
     CategoryModule,
+    OrderModule,
+    StatusOderModule,
   ],
   controllers: [AppController],
   providers: [AppService],
