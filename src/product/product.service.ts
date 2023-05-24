@@ -14,33 +14,35 @@ export class ProductService {
     @InjectRepository(Product) private readonly proRepository: Repository<Product>,
     @InjectRepository(Category) private readonly cateRepository: Repository<Category>
   ) { }
-  async create(restaurantid: number, categoryid: number, createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto) {
     const check = await this.proRepository.findOne({ where: [{ 'name': createProductDto.name }] })
-    const res = await this.resRepository.findOne({ where: [{ 'id': restaurantid }] })
-    const cate = await this.cateRepository.findOne({ where: [{ 'id': categoryid }] })
+    const restaurant = await this.resRepository.findOne({ where: [{ 'id': createProductDto.restaurantid }] })
+    const cate = await this.cateRepository.findOne({ where: [{ 'id': createProductDto.categoryid }] })
     if (check) {
       throw new ConflictException('đã có món ăn này rồi này rồi')
     }
-    console.log(res)
-    const newPro = await this.proRepository.create({
-      ...createProductDto,
-      restaurant: res,
-      category: cate
-    });
-    const create = await this.proRepository.save(newPro)
+    await delete createProductDto.categoryid
+    await delete createProductDto.restaurantid
 
-    return create;
+
+    let dataCreate = {
+      ...createProductDto,
+      restaurant: restaurant,
+      category: cate
+    };
+
+    return await this.proRepository.save(dataCreate)
+
+
   }
   async findAll(): Promise<Product[]> {
-
-
     return await this.proRepository.find({
       relations: ['restaurant', 'category'],
     });
 
   }
   async findOne(id: number): Promise<Product> {
-    const check = await this.proRepository.findOne({ where: [{ id: id }] });
+    const check = await this.proRepository.findOne({ where: [{ id: id }], relations: ['restaurant', 'category'] });
     if (!check) {
       throw new ConflictException('không có món ăn nào tên này')
     }
@@ -98,5 +100,5 @@ export class ProductService {
 
     return queryBuilder.getMany();
   }
-  
+
 }

@@ -10,7 +10,6 @@ import { OrderModule } from 'src/oder/order.module';
   imports: [TypeOrmModule.forFeature([User],),
   MulterModule.register({ dest: './upload' }),
   forwardRef(() => OrderModule)
-    // OrderModule
   ],
   controllers: [UserController],
   providers: [UserService],

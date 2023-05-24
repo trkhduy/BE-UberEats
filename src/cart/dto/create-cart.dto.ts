@@ -1,1 +1,11 @@
-export class CreateCartDto {}
+import { IsNotEmpty } from "class-validator";
+
+export class CreateCartDto {
+    @IsNotEmpty()
+    quantity: number
+    @IsNotEmpty()
+    productId: number
+    @IsNotEmpty()
+    userID: number
+
+}

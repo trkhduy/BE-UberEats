@@ -18,6 +18,9 @@ export class CreateRestaurantDto {
     })
     phone: string;
 
+    @IsNotEmpty({ message: 'Vui lòng không để trống' })
+    userid: number;
+
 
 
 
