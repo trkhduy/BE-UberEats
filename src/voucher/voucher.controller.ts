@@ -50,7 +50,7 @@ export class VoucherController {
   async findAll(@Query('name') keyword: string, @Query('restaurantid') restaurantid: number, @Req() req: Request,): Promise<Voucher[]> {
     const builder = (await this.voucherService.queryBuiler('voucher'))
     if (restaurantid) {
-      builder.innerJoinAndSelect('voucher.restaurant', 'restaurant').andWhere('restaurant.id = :restaurantid', { restaurantid })
+      builder.innerJoinAndMapOne('voucher.restaurant', 'restaurant', 'restaurant', 'voucher.restaurantid=restaurant.id').andWhere('restaurant.id = :restaurantid', { restaurantid })
       if (keyword) {
         builder.andWhere('product.name LIKE :keyword', { keyword: `%${keyword}%` });
       }

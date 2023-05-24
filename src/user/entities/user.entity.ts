@@ -1,7 +1,8 @@
+import { Cart } from "src/cart/entities/cart.entity";
 import { Order } from "src/oder/entities/order.entity";
 import { Restaurant } from "src/restaurant/entities/restaurant.entity";
 import { UserAddress } from "src/user_address/entities/user_address.entity";
-import { BeforeInsert, Column, Entity, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 
 @Entity('user')
@@ -75,5 +76,8 @@ export class User {
 
     @OneToMany(() => Order, order_driver => order_driver.driver)
     order_driver: Order[]
+
+    @ManyToOne(() => Cart, cart => cart.user)
+    cart: Cart
 }
 

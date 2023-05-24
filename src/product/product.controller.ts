@@ -15,7 +15,7 @@ import { isRFC3339 } from 'class-validator';
 export class ProductController {
   constructor(private readonly productService: ProductService) { }
 
-  @Post(':restaurantid/:categoryid')
+  @Post()
   @UseInterceptors(
     FileInterceptor('images', {
       storage: diskStorage({
@@ -29,7 +29,6 @@ export class ProductController {
     })
   )
   async create(
-    @Param('restaurantid') restaurantid: number, @Param('categoryid') categoryid: number,
     @UploadedFile(new ParseFilePipe({
       fileIsRequired: true,
     })
@@ -41,7 +40,8 @@ export class ProductController {
       throw new BadRequestException('thiếu ảnh r kìa');
     }
     createProductDto.images = images.filename;
-    const res = await this.productService.create(restaurantid, categoryid, createProductDto);
+    const res = await this.productService.create(createProductDto);
+
     return {
       statuscode: 200,
       message: "thêm mới thành công",
@@ -53,7 +53,7 @@ export class ProductController {
     const builder = (await this.productService.queryBuiler('product'))
 
     if (restaurantid && !categoryid) {
-      builder.innerJoinAndSelect('product.restaurant', 'restaurant').andWhere('restaurant.id = :restaurantid', { restaurantid })
+      builder.innerJoinAndMapOne('product.restaurant', 'restaurant', 'restaurant', 'product.restaurantid=restaurant.id').where('restaurant.id = :restaurantid', { restaurantid });
       if (keyword) {
         builder.andWhere('product.name LIKE :keyword', { keyword: `%${keyword}%` });
       }
@@ -65,7 +65,7 @@ export class ProductController {
       }
     }
     if (categoryid && !restaurantid) {
-      const productByCate = builder.innerJoinAndSelect('product.category', 'category').andWhere('category.id = :categoryid', { categoryid })
+      const productByCate = builder.innerJoinAndMapOne('product.category', 'category', 'category', 'product.categoryid=category.id').where('category.id = :restaurantid', { categoryid });
       if (keyword) {
         builder.andWhere('product.name LIKE :keyword', { keyword: `%${keyword}%` });
       }
@@ -79,8 +79,8 @@ export class ProductController {
     }
     if (categoryid && restaurantid) {
       const productByAll = builder
-        .innerJoinAndSelect('product.restaurant', 'restaurant')
-        .innerJoinAndSelect('product.category', 'category')
+        .innerJoinAndMapOne('product.restaurant', 'restaurant', 'restaurant', 'product.restaurantid=restaurant.id')
+        .innerJoinAndMapOne('product.category', 'category', 'category', 'product.categoryid=category.id')
         .where('restaurant.id = :restaurantid', { restaurantid })
         .andWhere('category.id = :categoryid', { categoryid });
       if (keyword) {

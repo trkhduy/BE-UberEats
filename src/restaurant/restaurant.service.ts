@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { Restaurant } from './entities/restaurant.entity';
 import { User } from 'src/user/entities/user.entity';
-import { Product } from 'src/product/entities/product.entity';
+
 
 @Injectable()
 export class RestaurantService {
@@ -13,9 +13,10 @@ export class RestaurantService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
 
   ) { }
-  async create(userId: number, createRestaurantDto: CreateRestaurantDto): Promise<Restaurant> {
+  async create(createRestaurantDto: CreateRestaurantDto): Promise<Restaurant> {
     const check = await this.resRepository.findOne({ where: [{ 'name': createRestaurantDto.name }] })
-    const user = await this.userRepository.findOne({ where: [{ 'id': userId }] })
+    const user = await this.userRepository.findOne({ where: [{ 'id': createRestaurantDto.userid }] })
+    await delete createRestaurantDto.userid
     if (check) {
       throw new ConflictException('có rồi')
     }
@@ -23,14 +24,14 @@ export class RestaurantService {
       ...createRestaurantDto,
       user
     });
-    const create = await this.resRepository.save(newRestaurant)
-    return create;
+    return await this.resRepository.save(newRestaurant)
+
 
   }
 
   async findAll(): Promise<Restaurant[]> {
     return await this.resRepository.find({
-      relations: ['voucher']
+      relations: ['voucher', 'product']
     });
   }
   async queryBuiler(alias: string) {

@@ -13,6 +13,7 @@ import { AuthModule } from './auth/auth.module';
 import { CategoryModule } from './category/category.module';
 import { OrderModule } from './oder/order.module';
 import { StatusOderModule } from './status_oder/status_oder.module';
+import { CartModule } from './cart/cart.module';
 
 
 @Module({
@@ -36,6 +37,7 @@ import { StatusOderModule } from './status_oder/status_oder.module';
     CategoryModule,
     OrderModule,
     StatusOderModule,
+    CartModule,
   ],
   controllers: [AppController],
   providers: [AppService],

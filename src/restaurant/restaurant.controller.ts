@@ -10,9 +10,9 @@ import * as path from 'path';
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) { }
 
-  @Post(':userid')
-  async create(@Param('userid') userid: number, @Body() createRestaurantDto: CreateRestaurantDto) {
-    const res = await this.restaurantService.create(userid, createRestaurantDto);
+  @Post()
+  async create(  @Body() createRestaurantDto: CreateRestaurantDto) {
+    const res = await this.restaurantService.create(createRestaurantDto);
     return {
       statuscode: 200,
       message: "thêm mới thành công",
