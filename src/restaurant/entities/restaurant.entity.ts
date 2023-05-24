@@ -8,15 +8,6 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGene
 export class Restaurant {
     @PrimaryGeneratedColumn()
     id: number;
-
-    @Column({
-        type: 'varchar',
-        length: 255,
-        charset: 'utf8mb4',
-        collation: 'utf8mb4_unicode_ci',
-    })
-    name: string;
-
     @Column({
         type: 'varchar',
         length: 255,
@@ -26,11 +17,10 @@ export class Restaurant {
     address: string;
 
     @Column()
-    email: string;
+    opentime: number;
 
     @Column()
-    phone: string;
-
+    endtime: number;
 
     @Column({ type: "timestamp", default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date

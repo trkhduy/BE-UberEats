@@ -5,13 +5,28 @@ import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
 import { Restaurant } from './entities/restaurant.entity';
 import { Response, Request } from 'express';
 import * as path from 'path';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 
 @Controller('api/restaurant')
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) { }
 
   @Post()
-  async create(  @Body() createRestaurantDto: CreateRestaurantDto) {
+  @UseInterceptors(
+    FileInterceptor('images', {
+      storage: diskStorage({
+        destination: "./upload/",
+        filename: (req, file, cb) => {
+          const filename: string = path.parse(file.originalname).name.replace(/\s/g, '')
+          const extension: string = path.parse(file.originalname).ext
+          return cb(null, `${filename}${extension}`)
+        }
+      }),
+    })
+  )
+  async create( 
+     @Body() createRestaurantDto: CreateRestaurantDto) {
     const res = await this.restaurantService.create(createRestaurantDto);
     return {
       statuscode: 200,

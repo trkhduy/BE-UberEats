@@ -14,19 +14,13 @@ export class RestaurantService {
 
   ) { }
   async create(createRestaurantDto: CreateRestaurantDto): Promise<Restaurant> {
-    const check = await this.resRepository.findOne({ where: [{ 'name': createRestaurantDto.name }] })
     const user = await this.userRepository.findOne({ where: [{ 'id': createRestaurantDto.userid }] })
     await delete createRestaurantDto.userid
-    if (check) {
-      throw new ConflictException('có rồi')
-    }
     const newRestaurant = await this.resRepository.create({
       ...createRestaurantDto,
       user
     });
     return await this.resRepository.save(newRestaurant)
-
-
   }
 
   async findAll(): Promise<Restaurant[]> {
@@ -47,26 +41,27 @@ export class RestaurantService {
     return check
   }
 
-  async update(id: number, updateRestaurantDto: UpdateRestaurantDto): Promise<UpdateResult> {
-    const check = await this.resRepository.findOne({ where: [{ 'name': updateRestaurantDto.name }] })
-    const checkadd = await this.resRepository.findOne({ where: [{ 'address': updateRestaurantDto.address }] })
+  async update(id: number, updateResDto: UpdateRestaurantDto): Promise<any> {
+    const check = await this.resRepository.findOne({ where: [{ 'address': updateResDto.address }] })
     const curRes = await this.resRepository.findOne({ where: [{ 'id': id }] })
+    const user = await this.userRepository.findOne({ where: [{ 'id': updateResDto.userid }] })
+    await delete updateResDto.userid
     if (check) {
-      if (curRes.name == updateRestaurantDto.name && curRes.address == updateRestaurantDto.address) {
-        const update = await this.resRepository.update(id, updateRestaurantDto)
-        return update
+      if (curRes.address == updateResDto.address) {
+        let dataUpdate = {
+          id: id,
+          ...updateResDto,
+          user: user
+        };
+        return await this.resRepository.update(id, dataUpdate)
       }
-      throw new ConflictException('đã có nhà hàng này rồi')
+      throw new ConflictException('có nhà hàng này r')
     }
-    if (checkadd) {
-      if (curRes.name == updateRestaurantDto.name && curRes.address == updateRestaurantDto.address) {
-        const update = await this.resRepository.update(id, updateRestaurantDto)
-        return update
-      }
-      throw new ConflictException('trùng địa chỉ với nhà hàng khác rồi')
-    }
-    const update = await this.resRepository.update(id, updateRestaurantDto)
-    return update
+
+
+
+
+
   }
 
   async remove(id: number): Promise<DeleteResult> {
