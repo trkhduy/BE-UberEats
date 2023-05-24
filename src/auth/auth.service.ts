@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from "@nestjs/common";
+import { ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { LoginDto } from "./dto/login.dto";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -17,11 +17,11 @@ export class AuthService {
     async login(dataLogin: LoginDto) {
         const user = await this.userRepository.findOne({ where: [{ 'email': dataLogin.email }] });
         if (!user) {
-            throw new ForbiddenException('User not found');
+            throw new UnauthorizedException('User not found');
         }
         const isMatched = bcrypt.compareSync(dataLogin.password, user.password);
         if (!isMatched) {
-            throw new ForbiddenException('Incorrect password or email');
+            throw new UnauthorizedException('Incorrect password or email');
         }
         delete user.password;
         const access_token = await this.createAccessToken(user.id, user.role);
