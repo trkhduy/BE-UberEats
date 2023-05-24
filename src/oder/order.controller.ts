@@ -3,9 +3,9 @@ import { OrderService } from './order.service';
 import { CreateOderDto } from './dto/create-oder.dto';
 import { UpdateOderDto } from './dto/update-oder.dto';
 
-@Controller('oder')
+@Controller('order')
 export class OrderController {
-  constructor(private readonly oderService: OrderService) {}
+  constructor(private readonly oderService: OrderService) { }
 
   @Post()
   create(@Body() createOderDto: CreateOderDto) {
