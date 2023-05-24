@@ -1,7 +1,7 @@
 import { Order } from "src/oder/entities/order.entity";
 import { Restaurant } from "src/restaurant/entities/restaurant.entity";
 import { UserAddress } from "src/user_address/entities/user_address.entity";
-import { BeforeInsert, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 
 @Entity('user')
@@ -9,6 +9,7 @@ export class User {
 
     @PrimaryGeneratedColumn()
     id: number;
+
     @Column({
         type: 'varchar',
         length: 255,
@@ -17,30 +18,12 @@ export class User {
     })
     name: string;
 
-
-
-
     @Column({
         type: 'varchar',
         length: 255,
         charset: 'utf8mb4',
         collation: 'utf8mb4_unicode_ci',
-    })
-    password: string
-
-    @Column({
-        type: 'varchar',
-        length: 255,
-        charset: 'utf8mb4',
-        collation: 'utf8mb4_unicode_ci',
-    })
-    phone: string;
-
-    @Column({
-        type: 'varchar',
-        length: 255,
-        charset: 'utf8mb4',
-        collation: 'utf8mb4_unicode_ci',
+        unique: true
     })
     email: string;
 
@@ -49,8 +32,25 @@ export class User {
         length: 255,
         charset: 'utf8mb4',
         collation: 'utf8mb4_unicode_ci',
+        default: 'default-avatar.jpg'
     })
     avatar: string;
+
+    @Column({
+        type: 'varchar',
+        length: 255,
+        charset: 'utf8mb4',
+        collation: 'utf8mb4_unicode_ci',
+    })
+    password: string;
+
+    @Column({
+        type: 'varchar',
+        length: 255,
+        charset: 'utf8mb4',
+        collation: 'utf8mb4_unicode_ci',
+    })
+    phone: string;
 
     @Column()
     role: number;
@@ -61,16 +61,19 @@ export class User {
     @Column({ type: "timestamp", default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date
 
-    @Column({ type: "timestamp", default: () => 'CURRENT_TIMESTAMP' })
-    update_at: Date
+    @Column({ type: "timestamp", default: () => 'CURRENT_TIMESTAMP', name: 'updated_at' })
+    updated_at: Date
 
     @OneToOne(() => Restaurant, restaurant => restaurant.user)
     restaurant: Restaurant
+
     @OneToMany(() => UserAddress, user_address => user_address.user)
     user_address: UserAddress[]
+
     @OneToMany(() => Order, order => order.user)
     order: Order[]
-    @OneToMany(() => Order, order => order.driver)
-    order_driver: Order
+
+    @OneToMany(() => Order, order_driver => order_driver.driver)
+    order_driver: Order[]
 }
 
