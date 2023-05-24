@@ -1,30 +1,37 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOderDto } from './dto/create-oder.dto';
 import { UpdateOderDto } from './dto/update-oder.dto';
 
-@Controller('oder')
+@Controller('api/oder')
 export class OrderController {
-  constructor(private readonly oderService: OrderService) {}
+  constructor(private readonly oderService: OrderService) { }
 
   @Post()
-  create(@Body() createOderDto: CreateOderDto) {
-    return this.oderService.create(createOderDto);
+  async create(@Param('restaurantid') restaurantid: number,
+    @Param('statusOderid') statusOderid: number,
+    @Param('userAddressid') userAddressid: number,
+    @Param('userid') userid: number,
+    @Param('driverid') driverid: number,
+    @Body() createOderDto: CreateOderDto) {
+
+    const res = await this.oderService.create(restaurantid, statusOderid, userAddressid, userid, driverid, createOderDto);
+    return {
+      statuscode: 200,
+      message: "thêm mới thành công",
+      result: res
+    }
   }
 
-  @Get()
-  findAll() {
-    return this.oderService.findAll();
-  }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.oderService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOderDto: UpdateOderDto) {
-    return this.oderService.update(+id, updateOderDto);
+  @Put(':id')
+  async update(@Param('id') id: number, @Body() updateOrderDto: UpdateOderDto) {
+    const update = await this.oderService.update(id, updateOrderDto)
+    return {
+      statuscode: 200,
+      message: "cập nhật thành công",
+      result: update
+    }
   }
 
   @Delete(':id')

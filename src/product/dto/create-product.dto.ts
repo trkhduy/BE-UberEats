@@ -19,7 +19,7 @@ export class CreateProductDto {
     @IsNotEmpty({ message: 'Vui lòng không để trống' })
     description: string;
 
-   
+    
     images: string;
 
 }
