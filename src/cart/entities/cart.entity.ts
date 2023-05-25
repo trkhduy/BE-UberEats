@@ -1,6 +1,6 @@
 import { Product } from "src/product/entities/product.entity";
 import { User } from "src/user/entities/user.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('cart')
 export class Cart {
@@ -8,8 +8,10 @@ export class Cart {
     id: number
     @Column()
     quantity: number
-    @OneToMany(() => Product, product => product.cart)
-    product: Product[]
-    @OneToMany(() => User, user => user.cart)
+
+    @ManyToOne(() => Product, product => product.cart)
+    product: Product
+    @OneToOne(() => User, user => user.cart)
+    @JoinColumn()
     user: User
 }

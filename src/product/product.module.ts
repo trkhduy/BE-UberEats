@@ -6,11 +6,13 @@ import { Product } from './entities/product.entity';
 
 import { RestaurantModule } from 'src/restaurant/restaurant.module';
 import { CategoryModule } from 'src/category/category.module';
+import { CartModule } from 'src/cart/cart.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Product]),
     RestaurantModule,
-    CategoryModule],
+    CategoryModule,
+    ],
   controllers: [ProductController],
   providers: [ProductService],
   exports: [TypeOrmModule]

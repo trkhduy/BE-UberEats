@@ -6,6 +6,6 @@ export class CreateCartDto {
     @IsNotEmpty()
     productId: number
     @IsNotEmpty()
-    userID: number
+    userId: number
 
 }
