@@ -5,11 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { MulterModule } from '@nestjs/platform-express';
 import { OrderModule } from 'src/oder/order.module';
+import { CartModule } from 'src/cart/cart.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User],),
   MulterModule.register({ dest: './upload' }),
-  forwardRef(() => OrderModule)
+  forwardRef(() => OrderModule,),
   ],
   controllers: [UserController],
   providers: [UserService],

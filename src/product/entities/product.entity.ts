@@ -2,7 +2,7 @@ import { Cart } from "src/cart/entities/cart.entity";
 import { Category } from "src/category/entities/category.entity";
 import { OrderDetail } from "src/oder/entities/order_detail.entity";
 import { Restaurant } from "src/restaurant/entities/restaurant.entity";
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('product')
 export class Product {
@@ -64,6 +64,6 @@ export class Product {
     @OneToOne(() => OrderDetail, order_detail => order_detail.product)
     order_detail: OrderDetail
 
-    @ManyToOne(() => Cart, cart => cart.product)
-    cart: Cart
+    @OneToMany(() => Cart, cart => cart.product)
+    cart: Cart[]
 }
