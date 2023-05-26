@@ -1,4 +1,5 @@
-import { OrderDetail } from "src/oder/entities/order_detail.entity";
+import { Order } from "src/oder/entities/order.entity";
+
 import { Restaurant } from "src/restaurant/entities/restaurant.entity";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
@@ -43,8 +44,7 @@ export class Voucher {
 
     @ManyToOne(() => Restaurant, restaurant => restaurant.voucher)
     restaurant: Restaurant
-    @OneToMany(() => OrderDetail, order_detail => order_detail.voucher)
-
-    order_detail: OrderDetail
+    @OneToMany(() => Order, order => order.voucher)
+    order: Order
 
 }

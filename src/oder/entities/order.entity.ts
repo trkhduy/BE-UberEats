@@ -4,7 +4,9 @@ import { StatusOder } from "src/status_oder/entities/status_oder.entity";
 import { User } from "src/user/entities/user.entity";
 import { UserAddress } from "src/user_address/entities/user_address.entity";
 import { Column, Entity, Index, JoinColumn, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { OrderDetail } from "./order_detail.entity";
+
+import { Voucher } from "src/voucher/entities/voucher.entity";
+import { OrderDetail } from "src/orderdetail/entities/orderdetail.entity";
 @Entity('order')
 // @Index(['driverId', 'userId'])
 export class Order {
@@ -41,4 +43,7 @@ export class Order {
     @ManyToOne(() => User, user => user.order)
     @JoinColumn({ name: "userId" })
     user: User;
+    @ManyToOne(() => Voucher, voucher => voucher.order)
+
+    voucher: Voucher
 }

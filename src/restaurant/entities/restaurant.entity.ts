@@ -1,6 +1,5 @@
 
 import { Order } from "src/oder/entities/order.entity";
-import { Product } from "src/product/entities/product.entity";
 import { User } from "src/user/entities/user.entity";
 import { Voucher } from "src/voucher/entities/voucher.entity";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
@@ -17,10 +16,10 @@ export class Restaurant {
     address: string;
 
     @Column()
-    opentime: number;
+    opentime: string;
 
     @Column()
-    endtime: number;
+    endtime: string;
 
     @Column({ type: "timestamp", default: () => 'CURRENT_TIMESTAMP' })
     created_at: Date
@@ -34,13 +33,12 @@ export class Restaurant {
     @OneToMany(() => Voucher, voucher => voucher.restaurant)
     voucher: Voucher[]
 
-    @OneToMany(() => Product, product => product.restaurant)
-    product: Product[]
+
 
     @OneToOne(() => Order, order => order.restaurant)
     order: Order
 
-    
+
 
 }
 

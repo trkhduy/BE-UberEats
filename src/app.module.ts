@@ -14,6 +14,7 @@ import { CategoryModule } from './category/category.module';
 import { OrderModule } from './oder/order.module';
 import { StatusOderModule } from './status_oder/status_oder.module';
 import { CartModule } from './cart/cart.module';
+import { OrderdetailModule } from './orderdetail/orderdetail.module';
 
 
 @Module({
@@ -38,6 +39,7 @@ import { CartModule } from './cart/cart.module';
     OrderModule,
     StatusOderModule,
     CartModule,
+    OrderdetailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

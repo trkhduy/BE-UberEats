@@ -7,10 +7,10 @@ export class CreateRestaurantDto {
     address: string;
 
     @IsNotEmpty({ message: 'Vui lòng không để trống' })
-    opentime: number;
+    opentime: string;
 
     @IsNotEmpty({ message: 'Vui lòng không để trống' })
-    endtime: number;
+    endtime: string;
    
 
     @IsNotEmpty({ message: 'Vui lòng không để trống' })

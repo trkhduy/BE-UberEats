@@ -21,7 +21,7 @@ export class UpdateProductDto extends PartialType(CreateProductDto) {
     @IsNotEmpty({ message: 'Vui lòng không để trống' })
     description: string;
     @IsNotEmpty({ message: 'Vui lòng không để trống' })
-    restaurantid: number;
+    userid: number;
     @IsNotEmpty({ message: 'Vui lòng không để trống' })
     categoryid: number;
 
