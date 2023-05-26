@@ -8,10 +8,14 @@ import { AuthGuard } from '@nestjs/passport';
 import { get } from 'http';
 import { diskStorage } from 'multer';
 import * as path from 'path';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('api/user')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(
+    private readonly userService: UserService,
+    private configService: ConfigService
+  ) { }
 
 
   @Post('/register')
@@ -33,8 +37,10 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'))
   @Get('/profile')
   async findOne(@Req() req: Request & { user: any }) {
-    console.log(req.user);
-    return req.user
+    req.user.user.avatar = this.configService.get('SERVER_HOST') + '/upload/' + req.user.user.avatar;
+    const user = req.user;
+    delete user.user.refresh_token;
+    return user
   }
 
   @UseGuards(AuthGuard('jwt'))

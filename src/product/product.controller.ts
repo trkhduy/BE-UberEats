@@ -6,7 +6,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as path from 'path';
 import { Product } from './entities/product.entity';
-import { Category } from 'src/category/entities/category.entity';
+import { ConfigService } from '@nestjs/config'
 import { Response, Request } from 'express';
 
 import { AuthGuard } from '@nestjs/passport';
@@ -15,7 +15,9 @@ import { AuthGuard } from '@nestjs/passport';
 @UseGuards(AuthGuard('jwt'))
 @Controller('api/product')
 export class ProductController {
-  constructor(private readonly productService: ProductService) { }
+  constructor(private readonly productService: ProductService,
+    private readonly configService: ConfigService
+  ) { }
 
   @Post()
   @UseInterceptors(
@@ -108,9 +110,14 @@ export class ProductController {
         builder.andWhere('product.price BETWEEN :minPrice AND :maxPrice', { minPrice, maxPrice });
       }
     }
+    const products = await builder.getMany();
+    if (products.length > 0) {
+      products.forEach((item) => {
+        item.images = this.configService.get('SERVER_HOST') + '/upload/' + item.images
+      })
+    }
 
-
-    return builder.getMany();
+    return products;
 
   }
 
@@ -120,7 +127,17 @@ export class ProductController {
     const userid = req.user.user.id;
     const builder = (await this.productService.queryBuiler('product'))
     builder.innerJoinAndSelect('product.user', 'user', 'product.userid=user.id').where('user.id = :userid', { userid });
-    return builder.getMany();
+
+    const products = await builder.getMany();
+    if (products.length > 0) {
+      products.forEach((item) => {
+        delete item.user.password;
+        delete item.user.refresh_token;
+        item.images = this.configService.get('SERVER_HOST') + '/upload/' + item.images
+      })
+    }
+
+    return products;
   }
 
   @Get(':id')
@@ -156,7 +173,7 @@ export class ProductController {
     @Param('id') id: number,
     @Body() updateProductDto: UpdateProductDto,
     @Req() req: Request & { user: any }) {
-    if (!images.filename) {
+    if (!images) {
       delete updateProductDto.images
     } else {
       updateProductDto.images = images.filename

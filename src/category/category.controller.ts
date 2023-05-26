@@ -1,15 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseGuards, Req } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Category } from './entities/category.entity';
+import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('api/category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) { }
 
   @Post()
-  async create(@Body() createCatetDto: CreateCategoryDto) {
+  async create(@Body() createCatetDto: CreateCategoryDto, @Req() req: Request & { user: any }) {
+    createCatetDto.userid = req.user.user.id;
     const res = await this.categoryService.create(createCatetDto);
     return {
       statuscode: 200,

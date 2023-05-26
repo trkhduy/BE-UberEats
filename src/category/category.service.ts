@@ -5,24 +5,30 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { Product } from 'src/product/entities/product.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class CategoryService {
   constructor(@InjectRepository(Category) private readonly cateRepository: Repository<Category>,
-  
+    @InjectRepository(User) private readonly userRepository: Repository<User>
   ) { }
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
-    const check = await this.cateRepository.findOne({ where: [{ 'name': createCategoryDto.name }] })
+    const check = await this.cateRepository.findOne({ where: [{ 'name': createCategoryDto.name }] });
+    const user = await this.userRepository.findOne({ where: [{ 'id': createCategoryDto.userid }] })
     if (check) {
       throw new ConflictException('có rồi')
     }
-    return await this.cateRepository.save(createCategoryDto)
+    delete createCategoryDto.userid
+    const newCategory = await this.cateRepository.create({
+      ...createCategoryDto,
+      user: user
+    })
+    return await this.cateRepository.save(newCategory)
   }
 
   async findAll(): Promise<Category[]> {
     return await this.cateRepository.find({
-      relations: ['product']
-
+      relations: ['product', 'user']
     });
   }
   async findOne(id: number): Promise<Category> {
@@ -32,7 +38,6 @@ export class CategoryService {
     }
     return check
   }
-  async fillTer(id: number): Promise<any> { }
 
   async update(id: number, updatecateDto: UpdateCategoryDto): Promise<UpdateResult> {
     const check = await this.cateRepository.findOne({ where: [{ 'name': updatecateDto.name }] })

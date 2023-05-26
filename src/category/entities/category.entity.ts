@@ -1,5 +1,7 @@
 import { Product } from "src/product/entities/product.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Restaurant } from "src/restaurant/entities/restaurant.entity";
+import { User } from "src/user/entities/user.entity";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('category')
 export class Category {
@@ -22,7 +24,9 @@ export class Category {
     })
     status: string;
 
-
     @OneToMany(() => Product, product => product.category)
     product: Product[]
+
+    @ManyToOne(() => User, user => user.category)
+    user: User
 }

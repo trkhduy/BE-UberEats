@@ -15,6 +15,7 @@ import { OrderModule } from './oder/order.module';
 import { StatusOderModule } from './status_oder/status_oder.module';
 import { CartModule } from './cart/cart.module';
 import { OrderdetailModule } from './orderdetail/orderdetail.module';
+import { ConfigModule } from '@nestjs/config';
 
 
 @Module({
@@ -40,6 +41,10 @@ import { OrderdetailModule } from './orderdetail/orderdetail.module';
     StatusOderModule,
     CartModule,
     OrderdetailModule,
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+      isGlobal: true
+    })
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,4 +1,5 @@
 import { Cart } from "src/cart/entities/cart.entity";
+import { Category } from "src/category/entities/category.entity";
 import { Order } from "src/oder/entities/order.entity";
 import { Product } from "src/product/entities/product.entity";
 import { Restaurant } from "src/restaurant/entities/restaurant.entity";
@@ -83,5 +84,8 @@ export class User {
 
     @OneToMany(() => Product, product => product.user)
     product: Product[]
+
+    @OneToMany(() => Category, category => category.user)
+    category: Category[]
 }
 
