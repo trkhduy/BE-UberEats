@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, ParseFilePipe, ConflictException, BadRequestException, Put, Query, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, ParseFilePipe, ConflictException, BadRequestException, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -8,9 +8,11 @@ import * as path from 'path';
 import { Product } from './entities/product.entity';
 import { Category } from 'src/category/entities/category.entity';
 import { Response, Request } from 'express';
-import { isRFC3339 } from 'class-validator';
+
+import { AuthGuard } from '@nestjs/passport';
 
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('api/product')
 export class ProductController {
   constructor(private readonly productService: ProductService) { }
@@ -31,14 +33,15 @@ export class ProductController {
   async create(
     @UploadedFile(new ParseFilePipe({
       fileIsRequired: true,
-    })
-    )
+    }))
     images: Express.Multer.File,
-    @Body() createProductDto: CreateProductDto
-  ) {
+    @Body() createProductDto: CreateProductDto,
+    @Req() req: Request & { user: any }) {
     if (!images.filename) {
       throw new BadRequestException('thiếu ảnh r kìa');
     }
+
+    createProductDto.userid = req.user.user.id
     createProductDto.images = images.filename;
     const res = await this.productService.create(createProductDto);
 
@@ -65,7 +68,7 @@ export class ProductController {
       }
     }
     if (categoryid && !userid) {
-      const productByCate = builder.innerJoinAndMapOne('product.category', 'category', 'category', 'product.categoryid=category.id').where('category.id = :userid', { categoryid });
+      const productByCate = builder.innerJoinAndMapOne('product.category', 'category', 'category', 'product.categoryid=category.id').where('category.id = :categoryid', { categoryid });
       if (keyword) {
         builder.andWhere('product.name LIKE :keyword', { keyword: `%${keyword}%` });
       }
@@ -111,6 +114,14 @@ export class ProductController {
 
   }
 
+  //getProductByUser
+  @Get('/menu')
+  async findMenu(@Req() req: Request & { user: any },): Promise<Product[]> {
+    const userid = req.user.user.id;
+    const builder = (await this.productService.queryBuiler('product'))
+    builder.innerJoinAndSelect('product.user', 'user', 'product.userid=user.id').where('user.id = :userid', { userid });
+    return builder.getMany();
+  }
 
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Product> {
@@ -125,7 +136,33 @@ export class ProductController {
 
 
   @Put(':id')
-  async update(@Param('id') id: number, @Body() updateProductDto: UpdateProductDto) {
+  @UseInterceptors(
+    FileInterceptor('images', {
+      storage: diskStorage({
+        destination: "./upload/",
+        filename: (req, file, cb) => {
+          const filename: string = path.parse(file.originalname).name.replace(/\s/g, '')
+          const extension: string = path.parse(file.originalname).ext
+          return cb(null, `${filename}${extension}`)
+        }
+      }),
+    })
+  )
+  async update(
+    @UploadedFile(new ParseFilePipe({
+      fileIsRequired: false,
+    }))
+    images: Express.Multer.File,
+    @Param('id') id: number,
+    @Body() updateProductDto: UpdateProductDto,
+    @Req() req: Request & { user: any }) {
+    if (!images.filename) {
+      delete updateProductDto.images
+    } else {
+      updateProductDto.images = images.filename
+    }
+    updateProductDto.userid = req.user.user.id
+    console.log(updateProductDto);
     const update = await this.productService.update(id, updateProductDto)
     return {
       statuscode: 200,

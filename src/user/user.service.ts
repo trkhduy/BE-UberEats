@@ -3,7 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import * as bcrypt from 'bcrypt'
 
 @Injectable()
@@ -33,8 +33,19 @@ export class UserService {
   async findAll(): Promise<User[]> {
     return await this.userrepository.find();
   }
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+
+  async updateInfo(id: number, updateUserDto: UpdateUserDto): Promise<UpdateResult> {
+    const email = await this.userrepository.findOne({ where: [{ 'email': updateUserDto.email }] })
+    const curUser = await this.userrepository.findOne({ where: [{ 'id': id }] })
+    if (email) {
+      if (curUser) {
+        const updateUser = await this.userrepository.update(id, updateUserDto)
+        return updateUser
+      }
+      throw new ConflictException('email đã tồn tại')
+    }
+    const updateUser = await this.userrepository.update(id, updateUserDto)
+    return updateUser
   }
 
   remove(id: number) {

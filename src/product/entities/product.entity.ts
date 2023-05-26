@@ -1,9 +1,6 @@
 import { Cart } from "src/cart/entities/cart.entity";
 import { Category } from "src/category/entities/category.entity";
 import { OrderDetail } from "src/orderdetail/entities/orderdetail.entity";
-
-
-import { Restaurant } from "src/restaurant/entities/restaurant.entity";
 import { User } from "src/user/entities/user.entity";
 import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
