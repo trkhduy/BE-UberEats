@@ -25,6 +25,11 @@ export class OrderService {
     const driver = await this.userRepository.findOne({ where: [{ 'id': createOrderDto.driverid }] })
     const user_address = await this.userAddressRepository.findOne({ where: [{ 'id': createOrderDto.userAddressid }] })
     const statusOder = await this.statusOrderRepository.findOne({ where: [{ 'id': createOrderDto.statusOderid }] })
+    await delete createOrderDto.userid
+    await delete createOrderDto.driverid
+    await delete createOrderDto.restaurantid
+    await delete createOrderDto.userAddressid
+    await delete createOrderDto.statusOderid
 
     let dataCreate = {
       ...createOrderDto,

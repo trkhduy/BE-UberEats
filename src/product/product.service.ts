@@ -16,13 +16,13 @@ export class ProductService {
   ) { }
   async create(createProductDto: CreateProductDto) {
     const check = await this.proRepository.findOne({ where: [{ 'name': createProductDto.name }] })
-    const restaurant = await this.resRepository.findOne({ where: [{ 'id': createProductDto.restaurantid }] })
+    const restaurant = await this.resRepository.findOne({ where: [{ 'id': createProductDto.userid }] })
     const cate = await this.cateRepository.findOne({ where: [{ 'id': createProductDto.categoryid }] })
     if (check) {
       throw new ConflictException('đã có món ăn này rồi này rồi')
     }
     await delete createProductDto.categoryid
-    await delete createProductDto.restaurantid
+    await delete createProductDto.userid
 
 
     let dataCreate = {
@@ -63,10 +63,10 @@ export class ProductService {
   async update(id: number, updateProDto: UpdateProductDto): Promise<any> {
     const check = await this.proRepository.findOne({ where: [{ 'name': updateProDto.name }] })
     const curPro = await this.proRepository.findOne({ where: [{ 'id': id }] })
-    const restaurant = await this.resRepository.findOne({ where: [{ 'id': updateProDto.restaurantid }] })
+    const restaurant = await this.resRepository.findOne({ where: [{ 'id': updateProDto.userid }] })
     const cate = await this.cateRepository.findOne({ where: [{ 'id': updateProDto.categoryid }] })
     await delete updateProDto.categoryid
-    await delete updateProDto.restaurantid
+    await delete updateProDto.userid
     if (check) {
       if (curPro.name == updateProDto.name) {
         let dataUpdate = {

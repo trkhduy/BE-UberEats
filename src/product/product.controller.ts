@@ -49,11 +49,11 @@ export class ProductController {
     }
   }
   @Get()
-  async findAll(@Query('name') keyword: string, @Query('restaurantid') restaurantid: number, @Query('categoryid') categoryid: number, @Req() req: Request,): Promise<Product[]> {
+  async findAll(@Query('name') keyword: string, @Query('userid') userid: number, @Query('categoryid') categoryid: number, @Req() req: Request,): Promise<Product[]> {
     const builder = (await this.productService.queryBuiler('product'))
 
-    if (restaurantid && !categoryid) {
-      builder.innerJoinAndMapOne('product.restaurant', 'restaurant', 'restaurant', 'product.restaurantid=restaurant.id').where('restaurant.id = :restaurantid', { restaurantid });
+    if (userid && !categoryid) {
+      builder.innerJoinAndMapOne('product.user', 'user', 'user', 'product.userid=user.id').where('user.id = :userid', { userid });
       if (keyword) {
         builder.andWhere('product.name LIKE :keyword', { keyword: `%${keyword}%` });
       }
@@ -64,8 +64,8 @@ export class ProductController {
         builder.andWhere('product.price BETWEEN :minPrice AND :maxPrice', { minPrice, maxPrice });
       }
     }
-    if (categoryid && !restaurantid) {
-      const productByCate = builder.innerJoinAndMapOne('product.category', 'category', 'category', 'product.categoryid=category.id').where('category.id = :restaurantid', { categoryid });
+    if (categoryid && !userid) {
+      const productByCate = builder.innerJoinAndMapOne('product.category', 'category', 'category', 'product.categoryid=category.id').where('category.id = :userid', { categoryid });
       if (keyword) {
         builder.andWhere('product.name LIKE :keyword', { keyword: `%${keyword}%` });
       }
@@ -77,11 +77,11 @@ export class ProductController {
       }
       return productByCate.getMany()
     }
-    if (categoryid && restaurantid) {
+    if (categoryid && userid) {
       const productByAll = builder
-        .innerJoinAndMapOne('product.restaurant', 'restaurant', 'restaurant', 'product.restaurantid=restaurant.id')
+        .innerJoinAndMapOne('product.user', 'user', 'user', 'product.userid=user.id')
         .innerJoinAndMapOne('product.category', 'category', 'category', 'product.categoryid=category.id')
-        .where('restaurant.id = :restaurantid', { restaurantid })
+        .where('user.id = :userid', { userid })
         .andWhere('category.id = :categoryid', { categoryid });
       if (keyword) {
         builder.andWhere('product.name LIKE :keyword', { keyword: `%${keyword}%` });
@@ -94,7 +94,7 @@ export class ProductController {
       }
       return productByAll.getMany()
     }
-    if (!categoryid && !restaurantid) {
+    if (!categoryid && !userid) {
       if (keyword) {
         builder.andWhere('product.name LIKE :keyword', { keyword: `%${keyword}%` });
       }

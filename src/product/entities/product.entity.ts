@@ -1,7 +1,10 @@
 import { Cart } from "src/cart/entities/cart.entity";
 import { Category } from "src/category/entities/category.entity";
-import { OrderDetail } from "src/oder/entities/order_detail.entity";
+import { OrderDetail } from "src/orderdetail/entities/orderdetail.entity";
+
+
 import { Restaurant } from "src/restaurant/entities/restaurant.entity";
+import { User } from "src/user/entities/user.entity";
 import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('product')
@@ -55,14 +58,14 @@ export class Product {
     @Column({ type: "timestamp", default: () => 'CURRENT_TIMESTAMP' })
     update_at: Date
 
-    @ManyToOne(() => Restaurant, restaurant => restaurant.product)
+    @ManyToOne(() => User, user => user.product)
     @JoinColumn()
-    restaurant: Restaurant
+    user: User
 
     @ManyToOne(() => Category, category => category.product)
     category: Category
-    @OneToOne(() => OrderDetail, order_detail => order_detail.product)
-    order_detail: OrderDetail
+    @OneToMany(() => OrderDetail, order_detail => order_detail.product)
+    order_detail: OrderDetail[]
 
     @OneToMany(() => Cart, cart => cart.product)
     cart: Cart[]
