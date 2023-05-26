@@ -4,19 +4,19 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
-import { Restaurant } from 'src/restaurant/entities/restaurant.entity';
 import { Category } from 'src/category/entities/category.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class ProductService {
   constructor(
-    @InjectRepository(Restaurant) private readonly resRepository: Repository<Restaurant>,
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(Product) private readonly proRepository: Repository<Product>,
     @InjectRepository(Category) private readonly cateRepository: Repository<Category>
   ) { }
   async create(createProductDto: CreateProductDto) {
     const check = await this.proRepository.findOne({ where: [{ 'name': createProductDto.name }] })
-    const restaurant = await this.resRepository.findOne({ where: [{ 'id': createProductDto.userid }] })
+    const user = await this.userRepository.findOne({ where: [{ 'id': createProductDto.userid }] })
     const cate = await this.cateRepository.findOne({ where: [{ 'id': createProductDto.categoryid }] })
     if (check) {
       throw new ConflictException('đã có món ăn này rồi này rồi')
@@ -27,7 +27,7 @@ export class ProductService {
 
     let dataCreate = {
       ...createProductDto,
-      restaurant: restaurant,
+      user: user,
       category: cate
     };
 
@@ -37,12 +37,12 @@ export class ProductService {
   }
   async findAll(): Promise<Product[]> {
     return await this.proRepository.find({
-      relations: ['restaurant', 'category'],
+      relations: ['user', 'category'],
     });
 
   }
   async findOne(id: number): Promise<Product> {
-    const check = await this.proRepository.findOne({ where: [{ id: id }], relations: ['restaurant', 'category'] });
+    const check = await this.proRepository.findOne({ where: [{ id: id }], relations: ['user', 'category'] });
     if (!check) {
       throw new ConflictException('không có món ăn nào tên này')
     }
@@ -63,7 +63,7 @@ export class ProductService {
   async update(id: number, updateProDto: UpdateProductDto): Promise<any> {
     const check = await this.proRepository.findOne({ where: [{ 'name': updateProDto.name }] })
     const curPro = await this.proRepository.findOne({ where: [{ 'id': id }] })
-    const restaurant = await this.resRepository.findOne({ where: [{ 'id': updateProDto.userid }] })
+    const user = await this.userRepository.findOne({ where: [{ 'id': updateProDto.userid }] })
     const cate = await this.cateRepository.findOne({ where: [{ 'id': updateProDto.categoryid }] })
     await delete updateProDto.categoryid
     await delete updateProDto.userid
@@ -72,7 +72,7 @@ export class ProductService {
         let dataUpdate = {
           id: id,
           ...updateProDto,
-          restaurant: restaurant,
+          user: user,
           category: cate
         };
         return await this.proRepository.update(id, dataUpdate)
@@ -82,7 +82,7 @@ export class ProductService {
     let dataUpdate = {
       id: id,
       ...updateProDto,
-      restaurant: restaurant,
+      user: user,
       category: cate
     };
     return await this.proRepository.update(id, dataUpdate)

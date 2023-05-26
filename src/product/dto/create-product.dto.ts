@@ -14,17 +14,13 @@ export class CreateProductDto {
     status: string;
 
     @IsNotEmpty({ message: 'Vui lòng không để trống' })
-    slug: string;
-
-    @IsNotEmpty({ message: 'Vui lòng không để trống' })
-
-    description: string;
-    @IsNotEmpty({ message: 'Vui lòng không để trống' })
-    userid: number;
-
-    @IsNotEmpty({ message: 'Vui lòng không để trống' })
     categoryid: number;
 
+    slug: string;
+
+    description: string;
+
+    userid: number;
 
     images: string;
 
