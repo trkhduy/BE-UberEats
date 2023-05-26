@@ -1,11 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { OrderdetailService } from './orderdetail.service';
 import { CreateOrderdetailDto } from './dto/create-orderdetail.dto';
 import { UpdateOrderdetailDto } from './dto/update-orderdetail.dto';
 
 @Controller('api/orderdetail')
 export class OrderdetailController {
-  constructor(private readonly orderdetailService: OrderdetailService) {}
+  constructor(private readonly orderdetailService: OrderdetailService) { }
 
   @Post()
   create(@Body() createOrderdetailDto: CreateOrderdetailDto) {
@@ -22,9 +22,14 @@ export class OrderdetailController {
     return this.orderdetailService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderdetailDto: UpdateOrderdetailDto) {
-    return this.orderdetailService.update(+id, updateOrderdetailDto);
+  @Put(':id')
+  async update(@Param('id') id: number, @Body() updateOrderDetailDto: UpdateOrderdetailDto) {
+    const update = await this.orderdetailService.update(id, updateOrderDetailDto)
+    return {
+      statuscode: 200,
+      message: "cập nhật thành công",
+      result: update
+    }
   }
 
   @Delete(':id')
