@@ -7,4 +7,5 @@ export class CreateCategoryDto {
     @IsNotEmpty({ message: 'Vui lòng không để trống' })
     status: string;
 
+    userid: number
 }
