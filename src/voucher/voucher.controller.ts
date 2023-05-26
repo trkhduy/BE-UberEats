@@ -26,7 +26,7 @@ export class VoucherController {
       }),
     })
   )
-  async create(@Param('restaurantid') restaurantid: number, @Body() createVoucherDto: CreateVoucherDto,
+  async create( @Body() createVoucherDto: CreateVoucherDto,
     @UploadedFile(new ParseFilePipe({
       fileIsRequired: true,
     })
@@ -37,8 +37,7 @@ export class VoucherController {
       throw new BadRequestException('thiếu ảnh r kìa');
     }
     createVoucherDto.images = images.filename;
-    const res = await this.voucherService.create(restaurantid, createVoucherDto);
-    console.log(restaurantid)
+    const res = await this.voucherService.create( createVoucherDto);
     return {
       statuscode: 200,
       message: "thêm mới thành công",

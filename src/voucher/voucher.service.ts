@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { Voucher } from './entities/voucher.entity';
 import { Restaurant } from 'src/restaurant/entities/restaurant.entity';
+import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 
 @Injectable()
 export class VoucherService {
@@ -12,25 +13,24 @@ export class VoucherService {
     @InjectRepository(Restaurant) private readonly resRepository: Repository<Restaurant>
   ) { }
 
-  async create(restaurantid: number, createVoucherDto: CreateVoucherDto) {
-    const check = await this.voucherRepository.findOne({ where: [{ 'name': createVoucherDto.name }] })
-    const res = await this.resRepository.findOne({ where: [{ 'id': restaurantid }] })
-
-
+  async create(CreateVoucherDto: CreateVoucherDto) {
+    const check = await this.voucherRepository.findOne({ where: [{ 'name': CreateVoucherDto.name }] })
+    const user = await this.voucherRepository.findOne({ where: [{ 'id': CreateVoucherDto.userid }] })
+    await delete CreateVoucherDto.userid
     if (check) {
-      throw new ConflictException('đã có voucher này rồi')
+      throw new ConflictException('đã có món ăn này rồi này rồi')
+
+    } else {
+      let dataCreate = {
+        ...CreateVoucherDto,
+        user: user,
+
+      };
+      console.log(dataCreate);
+      return await this.voucherRepository.save(dataCreate)
     }
-    const newVoucher = await this.voucherRepository.create({
-      ...createVoucherDto,
-      restaurant: res
-    });
 
-    const create = await this.voucherRepository.save(newVoucher)
-    console.log(create)
-
-    return create;
   }
-
   async findAll(): Promise<Voucher[]> {
     return await this.voucherRepository.find();
   }

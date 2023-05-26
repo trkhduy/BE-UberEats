@@ -11,17 +11,16 @@ export class UserAddressService {
   constructor(@InjectRepository(UserAddress) private readonly addressRepository: Repository<UserAddress>,
     @InjectRepository(User) private readonly userrepository: Repository<User>
   ) { }
-  async create(userid: number, createUserAddressDto: CreateUserAddressDto) {
+  async create(createAddressDto: CreateUserAddressDto) {
+    const user = await this.userrepository.findOne({ where: [{ 'id': createAddressDto.userid }] })
+    await delete createAddressDto.userid
+    let dataCreate = {
+      ...createAddressDto,
+      user: user,
 
-    const res = await this.userrepository.findOne({ where: [{ 'id': userid }] })
-    console.log(res)
-
-    const newUser_address = await this.addressRepository.create({
-      ...createUserAddressDto,
-      user: res
-    });
-    const create = await this.addressRepository.save(newUser_address)
-    return create;
+    };
+    console.log(dataCreate);
+    return await this.addressRepository.save(dataCreate)
   }
   async findAll(): Promise<UserAddress[]> {
     return await this.addressRepository.find();
@@ -37,14 +36,16 @@ export class UserAddressService {
     return check
   }
 
-  async update(id: number, updateaddressDto: UpdateUserAddressDto): Promise<UpdateResult> {
-    const check = await this.addressRepository.findOne({ where: [{ 'name_address': updateaddressDto.name_address }] })
+  async update(id: number, updateAddressDto: UpdateUserAddressDto) {
+    const user = await this.userrepository.findOne({ where: [{ 'id': updateAddressDto.userid }] })
+    await delete updateAddressDto.userid
+    let dataUpdate = {
+      id: id,
+      ...updateAddressDto,
+      user: user,
 
-    if (check) {
-      throw new ConflictException('đã có địa chỉ  này rồi')
-    }
-    const update = await this.addressRepository.update(id, updateaddressDto)
-    return update
+    };
+    return await this.addressRepository.update(id, dataUpdate)
   }
 
   async remove(id: number): Promise<DeleteResult> {

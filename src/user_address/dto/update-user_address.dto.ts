@@ -19,4 +19,7 @@ export class UpdateUserAddressDto extends PartialType(CreateUserAddressDto) {
         message: "Số điện thoại chưa đúng định dạng"
     })
     phone: string;
+    @IsNotEmpty({ message: "vui lòng không để trống" })
+
+    userid: number;
 }

@@ -8,9 +8,9 @@ import { UserAddress } from './entities/user_address.entity';
 export class UserAddressController {
   constructor(private readonly userAddressService: UserAddressService) { }
 
-  @Post(':userid')
-  async create(@Param('userid') userid: number, @Body() createVoucherDto: CreateUserAddressDto) {
-    const res = await this.userAddressService.create(userid, createVoucherDto);
+  @Post()
+  async create(@Body() createAddressDto: CreateUserAddressDto) {
+    const res = await this.userAddressService.create(createAddressDto);
 
     return {
       statuscode: 200,

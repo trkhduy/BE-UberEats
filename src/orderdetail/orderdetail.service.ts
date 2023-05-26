@@ -18,7 +18,7 @@ export class OrderdetailService {
   ) { }
 
   async create(createOderDetailDto: CreateOrderdetailDto) {
-   
+
     const product = await this.proRepository.findOne({ where: [{ 'id': createOderDetailDto.productid }] })
     const oder = await this.orderRepository.findOne({ where: [{ 'id': createOderDetailDto.orderid }] })
     await delete createOderDetailDto.productid
@@ -39,8 +39,22 @@ export class OrderdetailService {
     return `This action returns a #${id} orderdetail`;
   }
 
-  update(id: number, updateOrderdetailDto: UpdateOrderdetailDto) {
-    return `This action updates a #${id} orderdetail`;
+  async update(id: number, updateOrderDetailDto: UpdateOrderdetailDto): Promise<any> {
+    const product = await this.proRepository.findOne({ where: [{ 'id': updateOrderDetailDto.productid }] })
+    const order = await this.orderRepository.findOne({ where: [{ 'id': updateOrderDetailDto.orderid }] })
+    await delete updateOrderDetailDto.productid
+    await delete updateOrderDetailDto.orderid
+
+
+    let dataUpdate = {
+      id: id,
+      ...updateOrderDetailDto,
+      product: product,
+      order: order,
+    };
+    return await this.orderDetailRepository.update(id, dataUpdate)
+
+    //  this.proRepository.update(id, newPro);
   }
 
   remove(id: number) {
