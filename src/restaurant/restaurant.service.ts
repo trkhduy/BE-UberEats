@@ -11,12 +11,11 @@ import { User } from 'src/user/entities/user.entity';
 export class RestaurantService {
   constructor(@InjectRepository(Restaurant) private readonly resRepository: Repository<Restaurant>,
     @InjectRepository(User) private readonly userRepository: Repository<User>,
-
   ) { }
   async create(createRestaurantDto: CreateRestaurantDto): Promise<Restaurant> {
     const user = await this.userRepository.findOne({ where: [{ 'id': createRestaurantDto.userid }] })
     await delete createRestaurantDto.userid
-    const newRestaurant = await this.resRepository.create({
+    const newRestaurant = this.resRepository.create({
       ...createRestaurantDto,
       user
     });
@@ -31,15 +30,16 @@ export class RestaurantService {
   async queryBuiler(alias: string) {
     return this.resRepository.createQueryBuilder(alias)
   }
-  async findOne(id: number): Promise<Restaurant> {
 
-    const check = await this.resRepository.findOne({ where: [{ id: id }] });
-    if (!check) {
-      throw new ConflictException('không có nhà hàng này')
-    }
+  // async findOne(id: number): Promise<Restaurant> {
 
-    return check
-  }
+  //   const check = await this.resRepository.findOne({ where: [{ id: id }] });
+  //   if (!check) {
+  //     throw new ConflictException('không có nhà hàng này')
+  //   }
+
+  //   return check
+  // }
 
   async update(id: number, updateResDto: UpdateRestaurantDto): Promise<any> {
     const check = await this.resRepository.findOne({ where: [{ 'address': updateResDto.address }] })
@@ -49,7 +49,6 @@ export class RestaurantService {
     if (check) {
       if (curRes.address == updateResDto.address) {
         let dataUpdate = {
-          id: id,
           ...updateResDto,
           user: user
         };
@@ -57,11 +56,11 @@ export class RestaurantService {
       }
       throw new ConflictException('có nhà hàng này r')
     }
-
-
-
-
-
+    let dataUpdate = await this.resRepository.create({
+      ...updateResDto,
+      user: user
+    })
+    return await this.resRepository.update(id, dataUpdate)
   }
 
   async remove(id: number): Promise<DeleteResult> {

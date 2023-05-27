@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseInterceptors, UploadedFile, Query, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseInterceptors, UploadedFile, Query, Req, UseGuards } from '@nestjs/common';
 import { RestaurantService } from './restaurant.service';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
@@ -7,26 +7,18 @@ import { Response, Request } from 'express';
 import * as path from 'path';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('api/restaurant')
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) { }
 
   @Post()
-  @UseInterceptors(
-    FileInterceptor('images', {
-      storage: diskStorage({
-        destination: "./upload/",
-        filename: (req, file, cb) => {
-          const filename: string = path.parse(file.originalname).name.replace(/\s/g, '')
-          const extension: string = path.parse(file.originalname).ext
-          return cb(null, `${filename}${extension}`)
-        }
-      }),
-    })
-  )
-  async create( 
-     @Body() createRestaurantDto: CreateRestaurantDto) {
+  async create(
+    @Body() createRestaurantDto: CreateRestaurantDto,
+    @Req() req: Request & { user: any }) {
+    createRestaurantDto.userid = req.user.user.id
     const res = await this.restaurantService.create(createRestaurantDto);
     return {
       statuscode: 200,
@@ -48,18 +40,31 @@ export class RestaurantController {
 
     return restaurant;
   }
-  @Get(':id')
-  findOne(@Param('id') id: string): Promise<Restaurant> {
-    return this.restaurantService.findOne(+id);
+  @Get('/detail')
+  async findOne(@Req() req: Request & { user: any }): Promise<Restaurant> {
+    const builder = await this.restaurantService.queryBuiler('restaurant');
+    if (req.user.user.id) {
+      const userid = req.user.user.id;
+      builder.innerJoinAndSelect('restaurant.user', 'user', 'restaurant.userid = user.id').where('userid = :userid', { userid })
+    }
+    const restaurant = await builder.getOne();
+    if (restaurant) {
+      delete restaurant.user.password
+      delete restaurant.user.refresh_token
+    }
+    return restaurant
   }
 
   @Put(':id')
-  async update(@Param('id') id: number, @Body() updateRestaurant: UpdateRestaurantDto) {
-    const update = await this.restaurantService.update(id, updateRestaurant)
+  async update(@Param('id') id: number, @Body() updateRestaurant: UpdateRestaurantDto, @Req() req: Request & { user: any }) {
+    console.log(updateRestaurant);
+    updateRestaurant.userid = req.user.user.id;
+
+    // const update = await this.restaurantService.update(id, updateRestaurant);
     return {
       statuscode: 200,
       message: "cập nhật thành công",
-      result: update
+      // result: update
     }
   }
 
