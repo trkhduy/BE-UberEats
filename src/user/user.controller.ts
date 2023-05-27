@@ -50,9 +50,11 @@ export class UserController {
       delete user.password;
       delete user.refresh_token;
     }
-    return {
+    return resByUser ? {
       ...user,
       restaurant: resByUser
+    } : {
+      ...user
     }
   }
 
