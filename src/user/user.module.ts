@@ -7,11 +7,13 @@ import { MulterModule } from '@nestjs/platform-express';
 import { OrderModule } from 'src/oder/order.module';
 import { CartModule } from 'src/cart/cart.module';
 import { UserController } from './user.controller';
+import { RestaurantModule } from 'src/restaurant/restaurant.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User],),
   MulterModule.register({ dest: './upload' }),
-  forwardRef(() => OrderModule,),
+  forwardRef(() => OrderModule),
+  forwardRef(() => RestaurantModule)
   ],
   controllers: [UserController],
   providers: [UserService],

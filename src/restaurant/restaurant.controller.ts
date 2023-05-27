@@ -60,11 +60,11 @@ export class RestaurantController {
     console.log(updateRestaurant);
     updateRestaurant.userid = req.user.user.id;
 
-    // const update = await this.restaurantService.update(id, updateRestaurant);
+    const update = await this.restaurantService.update(id, updateRestaurant);
     return {
       statuscode: 200,
       message: "cập nhật thành công",
-      // result: update
+      result: update
     }
   }
 

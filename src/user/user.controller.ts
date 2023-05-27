@@ -37,8 +37,12 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'))
   @Get('/profile')
   async findOne(@Req() req: Request & { user: any }) {
+    const id = req.user.user.id;
     const builder = await this.userService.queryBuiler('user');
-    builder.innerJoinAndSelect('user.restaurant', 'restaurant', 'user.id = restaurant.userid')
+    const builderRes = (await this.userService.queryBuilerRes('restaurant')).where('restaurant.userid = :id', { id })
+    const resByUser = await builderRes.getOne()
+
+    builder.where('user.id = :id', { id });
 
     const user = await builder.getOne();
     if (user) {
@@ -46,7 +50,10 @@ export class UserController {
       delete user.password;
       delete user.refresh_token;
     }
-    return user
+    return {
+      ...user,
+      restaurant: resByUser
+    }
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -77,11 +84,11 @@ export class UserController {
       updateUserDto.avatar = image.filename
     }
 
-    // const update = await this.userService.updateInfo(req.user.user.id, updateUserDto);
+    const update = await this.userService.updateInfo(req.user.user.id, updateUserDto);
     return {
       statuscode: 200,
       message: "Update thông tin thành công",
-      // result: update
+      result: update
     }
 
   }

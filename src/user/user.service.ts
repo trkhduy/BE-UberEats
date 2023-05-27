@@ -1,18 +1,23 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository, UpdateResult } from 'typeorm';
 import * as bcrypt from 'bcrypt'
+import { Restaurant } from 'src/restaurant/entities/restaurant.entity';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User) private readonly userrepository: Repository<User>
+    @InjectRepository(User) private readonly userrepository: Repository<User>,
+    @InjectRepository(Restaurant) private readonly resRepository: Repository<Restaurant>
   ) { }
   async queryBuiler(alias: string) {
     return this.userrepository.createQueryBuilder(alias)
+  }
+  async queryBuilerRes(alias: string) {
+    return this.resRepository.createQueryBuilder(alias)
   }
   async create(data: CreateUserDto): Promise<CreateUserDto> {
     const email = await this.userrepository.findOne({ where: [{ 'email': data.email }] })

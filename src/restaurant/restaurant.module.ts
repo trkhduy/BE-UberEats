@@ -11,7 +11,6 @@ import { UserAddressModule } from 'src/user_address/user_address.module';
 @Module({
   imports: [TypeOrmModule.forFeature([Restaurant]),
   forwardRef(() => UserModule),
-
   ],
 
   controllers: [RestaurantController],
