@@ -11,6 +11,9 @@ export class UserService {
   constructor(
     @InjectRepository(User) private readonly userrepository: Repository<User>
   ) { }
+  async queryBuiler(alias: string) {
+    return this.userrepository.createQueryBuilder(alias)
+  }
   async create(data: CreateUserDto): Promise<CreateUserDto> {
     const email = await this.userrepository.findOne({ where: [{ 'email': data.email }] })
     if (email) {

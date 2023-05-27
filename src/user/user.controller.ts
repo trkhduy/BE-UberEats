@@ -37,9 +37,15 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'))
   @Get('/profile')
   async findOne(@Req() req: Request & { user: any }) {
-    req.user.user.avatar = this.configService.get('SERVER_HOST') + '/upload/' + req.user.user.avatar;
-    const user = req.user;
-    delete user.user.refresh_token;
+    const builder = await this.userService.queryBuiler('user');
+    builder.innerJoinAndSelect('user.restaurant', 'restaurant', 'user.id = restaurant.userid')
+
+    const user = await builder.getOne();
+    if (user) {
+      user.avatar = this.configService.get('SERVER_HOST') + '/upload/' + user.avatar;
+      delete user.password;
+      delete user.refresh_token;
+    }
     return user
   }
 
@@ -63,6 +69,7 @@ export class UserController {
       fileIsRequired: false
     }))
     image: Express.Multer.File) {
+    console.log(updateUserDto);
 
     if (!image) {
       delete updateUserDto.avatar
@@ -70,11 +77,11 @@ export class UserController {
       updateUserDto.avatar = image.filename
     }
 
-    const update = await this.userService.updateInfo(req.user.user.id, updateUserDto);
+    // const update = await this.userService.updateInfo(req.user.user.id, updateUserDto);
     return {
       statuscode: 200,
       message: "Update thông tin thành công",
-      result: update
+      // result: update
     }
 
   }
