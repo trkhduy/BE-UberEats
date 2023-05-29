@@ -8,4 +8,6 @@ export class UpdateCategoryDto extends PartialType(CreateCategoryDto) {
 
     @IsNotEmpty({ message: 'Vui lòng không để trống' })
     status: string;
+
+    userid: number
 }

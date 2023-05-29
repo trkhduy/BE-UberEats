@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseInterceptors, UploadedFile, ParseFilePipe, BadRequestException, Query, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseInterceptors, UploadedFile, ParseFilePipe, BadRequestException, Query, Req, UseGuards } from '@nestjs/common';
 import { VoucherService } from './voucher.service';
 import { CreateVoucherDto } from './dto/create-voucher.dto';
 import { UpdateVoucherDto } from './dto/update-voucher.dto';
@@ -7,13 +7,18 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Response, Request } from 'express';
 import { diskStorage } from 'multer';
 import * as path from 'path';
+import { AuthGuard } from '@nestjs/passport';
+import { ConfigService } from '@nestjs/config';
 
 
 @Controller('api/voucher')
 export class VoucherController {
-  constructor(private readonly voucherService: VoucherService) { }
+  constructor(private readonly voucherService: VoucherService,
+    private configService: ConfigService
+  ) { }
 
-  @Post(':restaurantid')
+  @UseGuards(AuthGuard('jwt'))
+  @Post('')
   @UseInterceptors(
     FileInterceptor('images', {
       storage: diskStorage({
@@ -26,45 +31,108 @@ export class VoucherController {
       }),
     })
   )
-  async create( @Body() createVoucherDto: CreateVoucherDto,
+  async create(@Body() createVoucherDto: CreateVoucherDto,
     @UploadedFile(new ParseFilePipe({
       fileIsRequired: true,
     })
     )
     images: Express.Multer.File,
+    @Req() req: Request & { user: any }
   ) {
     if (!images.filename) {
       throw new BadRequestException('thiếu ảnh r kìa');
     }
+    createVoucherDto.userid = req.user.user.id
     createVoucherDto.images = images.filename;
-    const res = await this.voucherService.create( createVoucherDto);
+    const voucher = await this.voucherService.create(createVoucherDto);
+    delete voucher.user.password;
+    delete voucher.user.refresh_token;
     return {
       statuscode: 200,
       message: "thêm mới thành công",
-      result: res
+      result: voucher
     }
   }
 
+  //get Voucher By Client
   @Get()
-  async findAll(@Query('name') keyword: string, @Query('restaurantid') restaurantid: number, @Req() req: Request,): Promise<Voucher[]> {
+  async findAll(@Query('name') keyword: string, @Query('userid') userid: number, @Req() req: Request,): Promise<Voucher[]> {
     const builder = (await this.voucherService.queryBuiler('voucher'))
-    if (restaurantid) {
-      builder.innerJoinAndMapOne('voucher.restaurant', 'restaurant', 'restaurant', 'voucher.restaurantid=restaurant.id').andWhere('restaurant.id = :restaurantid', { restaurantid })
+    builder.innerJoinAndMapOne('voucher.user', 'user', 'user', 'voucher.userid=user.id')
+    if (userid) {
+      builder.andWhere('user.id = :userid', { userid })
       if (keyword) {
         builder.andWhere('product.name LIKE :keyword', { keyword: `%${keyword}%` });
       }
     }
-    return builder.getMany();
+    const vouchers = await builder.getMany();
+    if (vouchers.length > 0) {
+      vouchers.forEach((voucher) => {
+        delete voucher.user.password;
+        delete voucher.user.refresh_token;
+        voucher.images = this.configService.get('SERVER_HOST') + '/upload/' + voucher.images
+      })
+    }
 
+    return vouchers
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Voucher> {
-    return await this.voucherService.findOne(+id);
+  // get Voucher By User
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/getByUser')
+  async getVoucherByUser(@Query('name') keyword: string, @Req() req: Request & { user: any }): Promise<Voucher[]> {
+    const userid = req.user.user.id;
+    const builder = (await this.voucherService.queryBuiler('voucher'))
+    builder.innerJoinAndMapOne('voucher.user', 'user', 'user', 'voucher.userid=user.id')
+    builder.andWhere('user.id = :userid', { userid });
+    if (keyword) {
+      builder.andWhere('product.name LIKE :keyword', { keyword: `%${keyword}%` });
+    }
+    const vouchers = await builder.getMany();
+    if (vouchers.length > 0) {
+      vouchers.forEach((voucher) => {
+        delete voucher.user.password;
+        delete voucher.user.refresh_token;
+        voucher.images = this.configService.get('SERVER_HOST') + '/upload/' + voucher.images
+      })
+    }
+
+    return vouchers
   }
 
+  // @Get(':id')
+  // async findOne(@Param('id') id: string): Promise<Voucher> {
+  //   return await this.voucherService.findOne(+id);
+  // }
+
+  @UseGuards(AuthGuard('jwt'))
   @Put(':id')
-  async update(@Param('id') id: number, @Body() updateVoucherDto: UpdateVoucherDto) {
+  @UseInterceptors(
+    FileInterceptor('images', {
+      storage: diskStorage({
+        destination: "./upload/",
+        filename: (req, file, cb) => {
+          const filename: string = path.parse(file.originalname).name.replace(/\s/g, '')
+          const extension: string = path.parse(file.originalname).ext
+          return cb(null, `${filename}${extension}`)
+        }
+      }),
+    })
+  )
+  async update(@Param('id') id: number, @Body() updateVoucherDto: UpdateVoucherDto,
+    @UploadedFile(new ParseFilePipe({
+      fileIsRequired: false,
+    })
+    )
+    images: Express.Multer.File,
+    @Req() req: Request & { user: any }
+  ) {
+    if (!images) {
+      delete updateVoucherDto.images;
+    } else {
+      updateVoucherDto.images = images.filename
+    }
+    updateVoucherDto.userid = req.user.user.id
     const update = await this.voucherService.update(id, updateVoucherDto)
     return {
       statuscode: 200,
@@ -73,6 +141,7 @@ export class VoucherController {
     }
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(@Param('id') id: string) {
     const destroyed = await this.voucherService.remove(+id);
