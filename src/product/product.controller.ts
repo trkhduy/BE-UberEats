@@ -12,13 +12,13 @@ import { Response, Request } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 
 
-@UseGuards(AuthGuard('jwt'))
 @Controller('api/product')
 export class ProductController {
   constructor(private readonly productService: ProductService,
     private readonly configService: ConfigService
   ) { }
 
+  @UseGuards(AuthGuard('jwt'))
   @Post()
   @UseInterceptors(
     FileInterceptor('images', {
@@ -46,19 +46,23 @@ export class ProductController {
     createProductDto.userid = req.user.user.id
     createProductDto.images = images.filename;
     const res = await this.productService.create(createProductDto);
-
+    delete res.user.password;
+    delete res.user.refresh_token;
     return {
       statuscode: 200,
       message: "thêm mới thành công",
       result: res
     }
   }
+
   @Get()
   async findAll(@Query('name') keyword: string, @Query('userid') userid: number, @Query('categoryid') categoryid: number, @Req() req: Request,): Promise<Product[]> {
     const builder = (await this.productService.queryBuiler('product'))
-
+      .innerJoinAndMapOne('product.user', 'user', 'user', 'product.userid=user.id')
+      .innerJoinAndMapOne('product.category', 'category', 'category', 'product.categoryid=category.id')
+      .leftJoinAndMapOne('product.restaurant', 'restaurant', 'restaurant', 'user.id=restaurant.userid');
     if (userid && !categoryid) {
-      builder.innerJoinAndMapOne('product.user', 'user', 'user', 'product.userid=user.id').where('user.id = :userid', { userid });
+      builder.where('user.id = :userid', { userid });
       if (keyword) {
         builder.andWhere('product.name LIKE :keyword', { keyword: `%${keyword}%` });
       }
@@ -68,9 +72,21 @@ export class ProductController {
 
         builder.andWhere('product.price BETWEEN :minPrice AND :maxPrice', { minPrice, maxPrice });
       }
+      const productByUser: any = await builder.getMany();
+      if (productByUser.length > 0) {
+        productByUser.forEach((item: any) => {
+          if (!item.restaurant) {
+            delete item.restaurant;
+          }
+          delete item.user.password;
+          delete item.user.refresh_token;
+          item.images = this.configService.get('SERVER_HOST') + '/upload/' + item.images
+        })
+      }
+      return productByUser
     }
     if (categoryid && !userid) {
-      const productByCate = builder.innerJoinAndMapOne('product.category', 'category', 'category', 'product.categoryid=category.id').where('category.id = :categoryid', { categoryid });
+      builder.where('category.id = :categoryid', { categoryid });
       if (keyword) {
         builder.andWhere('product.name LIKE :keyword', { keyword: `%${keyword}%` });
       }
@@ -80,12 +96,21 @@ export class ProductController {
 
         builder.andWhere('product.price BETWEEN :minPrice AND :maxPrice', { minPrice, maxPrice });
       }
-      return productByCate.getMany()
+      const productByCate: any = await builder.getMany()
+      if (productByCate.length > 0) {
+        productByCate.forEach((item: any) => {
+          if (!item.restaurant) {
+            delete item.restaurant;
+          }
+          delete item.user.password;
+          delete item.user.refresh_token;
+          item.images = this.configService.get('SERVER_HOST') + '/upload/' + item.images
+        })
+      }
+      return productByCate
     }
     if (categoryid && userid) {
-      const productByAll = builder
-        .innerJoinAndMapOne('product.user', 'user', 'user', 'product.userid=user.id')
-        .innerJoinAndMapOne('product.category', 'category', 'category', 'product.categoryid=category.id')
+      builder
         .where('user.id = :userid', { userid })
         .andWhere('category.id = :categoryid', { categoryid });
       if (keyword) {
@@ -97,7 +122,18 @@ export class ProductController {
 
         builder.andWhere('product.price BETWEEN :minPrice AND :maxPrice', { minPrice, maxPrice });
       }
-      return productByAll.getMany()
+      const productByAll: any = await builder.getMany()
+      if (productByAll.length > 0) {
+        productByAll.forEach((item: any) => {
+          if (!item.restaurant) {
+            delete item.restaurant;
+          }
+          delete item.user.password;
+          delete item.user.refresh_token;
+          item.images = this.configService.get('SERVER_HOST') + '/upload/' + item.images
+        })
+      }
+      return productByAll
     }
     if (!categoryid && !userid) {
       if (keyword) {
@@ -110,9 +146,15 @@ export class ProductController {
         builder.andWhere('product.price BETWEEN :minPrice AND :maxPrice', { minPrice, maxPrice });
       }
     }
-    const products = await builder.getMany();
+
+    const products: any = await builder.getMany();
     if (products.length > 0) {
-      products.forEach((item) => {
+      products.forEach((item: any) => {
+        if (!item.restaurant) {
+          delete item.restaurant;
+        }
+        delete item.user.password;
+        delete item.user.refresh_token;
         item.images = this.configService.get('SERVER_HOST') + '/upload/' + item.images
       })
     }
@@ -122,6 +164,7 @@ export class ProductController {
   }
 
   //getProductByUser
+  @UseGuards(AuthGuard('jwt'))
   @Get('/menu')
   async findMenu(@Req() req: Request & { user: any },): Promise<Product[]> {
     const userid = req.user.user.id;
@@ -140,18 +183,18 @@ export class ProductController {
     return products;
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Product> {
-    return await this.productService.findOne(+id);
-  }
+  // @Get(':id')
+  // async findOne(@Param('id') id: string): Promise<Product> {
+  //   return await this.productService.findOne(+id);
+  // }
 
-  @Get('fill/:categoryid')
-  async fill(@Param('categoryid') categoryid: number,) {
-    return await this.productService.fillter(categoryid);
-  }
+  // @Get('fill/:categoryid')
+  // async fill(@Param('categoryid') categoryid: number,) {
+  //   return await this.productService.fillter(categoryid);
+  // }
 
 
-
+  @UseGuards(AuthGuard('jwt'))
   @Put(':id')
   @UseInterceptors(
     FileInterceptor('images', {
@@ -188,6 +231,7 @@ export class ProductController {
     }
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async remove(@Param('id') id: string) {
     const destroyed = await this.productService.remove(+id);

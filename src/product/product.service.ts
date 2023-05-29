@@ -6,13 +6,15 @@ import { Product } from './entities/product.entity';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { Category } from 'src/category/entities/category.entity';
 import { User } from 'src/user/entities/user.entity';
+import { Restaurant } from 'src/restaurant/entities/restaurant.entity';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(Product) private readonly proRepository: Repository<Product>,
-    @InjectRepository(Category) private readonly cateRepository: Repository<Category>
+    @InjectRepository(Category) private readonly cateRepository: Repository<Category>,
+    @InjectRepository(Restaurant) private readonly resRepository: Repository<Restaurant>
   ) { }
   async create(createProductDto: CreateProductDto) {
     const check = await this.proRepository.findOne({ where: [{ 'name': createProductDto.name }] })
@@ -60,6 +62,11 @@ export class ProductService {
   async queryBuiler(alias: string) {
     return this.proRepository.createQueryBuilder(alias)
   }
+
+  async queryBuilerRes(alias: string) {
+    return this.resRepository.createQueryBuilder(alias)
+  }
+
   async update(id: number, updateProDto: UpdateProductDto): Promise<any> {
     const check = await this.proRepository.findOne({ where: [{ 'name': updateProDto.name }] })
     const curPro = await this.proRepository.findOne({ where: [{ 'id': id }] })

@@ -37,13 +37,14 @@ export class AuthController {
     }
 
     @UseGuards(AuthGuard('jwt'))
-    @Post('user/logout/:id')
-    async logOut(@Param('id') id: number, @Res({ passthrough: true }) res: Response) {
-
-        this.authService.logOut(id)
+    @Get('user/logout')
+    async logOut(@Req() req: Request & { user: any }, @Res({ passthrough: true }) res: Response) {
+        const id = req.user.user.id;
+        this.authService.logOut(id);
         res.clearCookie('access_token');
         res.clearCookie('refresh_token');
         return {
+            status: 200,
             message: 'Đăng xuất thành công'
         }
     }

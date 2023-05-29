@@ -4,6 +4,7 @@ import { Order } from "src/oder/entities/order.entity";
 import { Product } from "src/product/entities/product.entity";
 import { Restaurant } from "src/restaurant/entities/restaurant.entity";
 import { UserAddress } from "src/user_address/entities/user_address.entity";
+import { Voucher } from "src/voucher/entities/voucher.entity";
 import { BeforeInsert, Column, Entity, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 
@@ -87,5 +88,8 @@ export class User {
 
     @OneToMany(() => Category, category => category.user)
     category: Category[]
+
+    @OneToMany(() => Voucher, voucher => voucher.user)
+    voucher: Voucher[]
 }
 

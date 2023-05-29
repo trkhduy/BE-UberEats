@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -28,9 +28,26 @@ export class CategoryService {
 
   async findAll(): Promise<Category[]> {
     return await this.cateRepository.find({
-      relations: ['product', 'user']
+      relations: ['product']
     });
   }
+
+  async findByUser(userid: number): Promise<Category[]> {
+    const cateByUser = (await this.queryBuiler('category'))
+      .innerJoinAndSelect('category.product', 'product', 'category.id=product.category.id')
+      .innerJoinAndSelect('category.user', 'user', 'category.userid = user.id')
+      .where('user.id = :userid', { userid }).getMany();
+    (await cateByUser).forEach((cate) => {
+      delete cate.user.password;
+      delete cate.user.refresh_token;
+    })
+    return cateByUser
+  }
+
+  async queryBuiler(alias: string) {
+    return this.cateRepository.createQueryBuilder(alias)
+  }
+
   async findOne(id: number): Promise<Category> {
     const check = await this.cateRepository.findOne({ where: [{ id: id }] });
     if (!check) {
@@ -40,16 +57,37 @@ export class CategoryService {
   }
 
   async update(id: number, updatecateDto: UpdateCategoryDto): Promise<UpdateResult> {
-    const check = await this.cateRepository.findOne({ where: [{ 'name': updatecateDto.name }] })
-
+    const userid = updatecateDto.userid;
+    const cateName = updatecateDto.name;
+    const check = await (await this.queryBuiler('category')).innerJoinAndSelect('category.user', 'user', 'category.userid = user.id').where('user.id = :userid', { userid }).andWhere('category.name LIKE :cateName', { cateName }).getOne();
+    const curCate = await this.cateRepository.findOne({ where: [{ 'id': id }] });
+    const user = await this.userRepository.findOne({ where: [{ 'id': updatecateDto.userid }] });
     if (check) {
-      throw new ConflictException('đã có địa chỉ  này rồi')
+      if (curCate.name == updatecateDto.name) {
+        delete updatecateDto.userid
+        const newCategory = {
+          ...updatecateDto,
+          user: user
+        };
+        return await this.cateRepository.update(id, newCategory)
+      }
+      throw new ConflictException('đã có danh mục này rồi')
     }
-    const update = await this.cateRepository.update(id, updatecateDto)
-    return update
+    delete updatecateDto.userid
+    const newCategory = {
+      ...updatecateDto,
+      user: user
+    };
+    return await this.cateRepository.update(id, newCategory)
   }
 
   async remove(id: number): Promise<DeleteResult> {
+    const categoryCheck = await (await this.queryBuiler('category'))
+      .innerJoinAndSelect('category.product', 'product', 'category.id=product.category.id').where('category.id = :id ', { id }).getOne();
+
+    if (categoryCheck) {
+      throw new BadRequestException('category hiện đang có sản phẩm')
+    }
     const destroyed = await this.cateRepository.delete(id)
     return destroyed
   }

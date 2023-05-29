@@ -30,11 +30,7 @@ export class Restaurant {
     @OneToOne(() => User, user => user.restaurant)
     @JoinColumn()
     user: User
-    @OneToMany(() => Voucher, voucher => voucher.restaurant)
-    voucher: Voucher[]
-
-
-
+    
     @OneToOne(() => Order, order => order.restaurant)
     order: Order
 
