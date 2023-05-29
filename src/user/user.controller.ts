@@ -39,9 +39,8 @@ export class UserController {
   async findOne(@Req() req: Request & { user: any }) {
     const id = req.user.user.id;
     const builder = await this.userService.queryBuiler('user');
-    const builderRes = (await this.userService.queryBuilerRes('restaurant')).where('restaurant.userid = :id', { id })
-    const resByUser = await builderRes.getOne()
-
+    const builderRes = (await this.userService.queryBuilerRes('restaurant'));
+    const builderUserAd = await this.userService.queryBuilerUserAd('user_address');
     builder.where('user.id = :id', { id });
 
     const user = await builder.getOne();
@@ -50,12 +49,27 @@ export class UserController {
       delete user.password;
       delete user.refresh_token;
     }
-    return resByUser ? {
-      ...user,
-      restaurant: resByUser
-    } : {
-      ...user
+    if (req.user.user.role === 3) {
+      builderRes.where('restaurant.userid = :id', { id })
+      const resByUser = await builderRes.getOne();
+      return resByUser ? {
+        ...user,
+        restaurant: resByUser
+      } : {
+        ...user
+      }
     }
+    if (req.user.user.role === 1) {
+      builderUserAd.where('user_address.userid = :id', { id })
+      const userAdd = await builderUserAd.getMany();
+      return {
+        ...user,
+        addresses: userAdd
+      }
+    }
+
+    return { ...user }
+
   }
 
   @UseGuards(AuthGuard('jwt'))
