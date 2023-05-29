@@ -6,18 +6,23 @@ import { User } from './entities/user.entity';
 import { Repository, UpdateResult } from 'typeorm';
 import * as bcrypt from 'bcrypt'
 import { Restaurant } from 'src/restaurant/entities/restaurant.entity';
+import { UserAddress } from 'src/user_address/entities/user_address.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userrepository: Repository<User>,
-    @InjectRepository(Restaurant) private readonly resRepository: Repository<Restaurant>
+    @InjectRepository(Restaurant) private readonly resRepository: Repository<Restaurant>,
+    @InjectRepository(UserAddress) private readonly userAdressRepository: Repository<UserAddress>
   ) { }
   async queryBuiler(alias: string) {
     return this.userrepository.createQueryBuilder(alias)
   }
   async queryBuilerRes(alias: string) {
     return this.resRepository.createQueryBuilder(alias)
+  }
+  async queryBuilerUserAd(alias: string) {
+    return this.userAdressRepository.createQueryBuilder(alias)
   }
   async create(data: CreateUserDto): Promise<CreateUserDto> {
     const email = await this.userrepository.findOne({ where: [{ 'email': data.email }] })

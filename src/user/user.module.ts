@@ -8,12 +8,14 @@ import { OrderModule } from 'src/oder/order.module';
 import { CartModule } from 'src/cart/cart.module';
 import { UserController } from './user.controller';
 import { RestaurantModule } from 'src/restaurant/restaurant.module';
+import { UserAddressModule } from 'src/user_address/user_address.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User],),
   MulterModule.register({ dest: './upload' }),
   forwardRef(() => OrderModule),
-  forwardRef(() => RestaurantModule)
+  forwardRef(() => RestaurantModule),
+  forwardRef(() => UserAddressModule),
   ],
   controllers: [UserController],
   providers: [UserService],
