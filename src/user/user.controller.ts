@@ -52,6 +52,8 @@ export class UserController {
     if (req.user.user.role === 3) {
       builderRes.where('restaurant.userid = :id', { id })
       const resByUser = await builderRes.getOne();
+      delete user.password;
+      delete user.refresh_token;
       return resByUser ? {
         ...user,
         restaurant: resByUser
@@ -62,6 +64,8 @@ export class UserController {
     if (req.user.user.role === 1) {
       builderUserAd.where('user_address.userid = :id', { id })
       const userAdd = await builderUserAd.getMany();
+      delete user.password;
+      delete user.refresh_token;
       return {
         ...user,
         addresses: userAdd
