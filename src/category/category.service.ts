@@ -19,7 +19,8 @@ export class CategoryService {
       throw new ConflictException('có rồi')
     }
     delete createCategoryDto.userid
-    const newCategory = await this.cateRepository.create({
+    createCategoryDto.status = "out of stock";
+    const newCategory = this.cateRepository.create({
       ...createCategoryDto,
       user: user
     })
@@ -34,12 +35,15 @@ export class CategoryService {
 
   async findByUser(userid: number): Promise<Category[]> {
     const cateByUser = (await this.queryBuiler('category'))
-      .innerJoinAndSelect('category.product', 'product', 'category.id=product.category.id')
       .innerJoinAndSelect('category.user', 'user', 'category.userid = user.id')
-      .where('user.id = :userid', { userid }).getMany();
+      .getMany();
     (await cateByUser).forEach((cate) => {
-      delete cate.user.password;
-      delete cate.user.refresh_token;
+      if (cate.user.id == userid) {
+        delete cate.user.password;
+        delete cate.user.refresh_token;
+      } else {
+        delete cate.user;
+      }
     })
     return cateByUser
   }
@@ -57,13 +61,20 @@ export class CategoryService {
   }
 
   async update(id: number, updatecateDto: UpdateCategoryDto): Promise<UpdateResult> {
-    const userid = updatecateDto.userid;
-    const cateName = updatecateDto.name;
-    const check = await (await this.queryBuiler('category')).innerJoinAndSelect('category.user', 'user', 'category.userid = user.id').where('user.id = :userid', { userid }).andWhere('category.name LIKE :cateName', { cateName }).getOne();
+    const check = await this.cateRepository.findOne({ where: [{ 'name': updatecateDto.name }] });
     const curCate = await this.cateRepository.findOne({ where: [{ 'id': id }] });
     const user = await this.userRepository.findOne({ where: [{ 'id': updatecateDto.userid }] });
+    const checkProByCate = await (await this.queryBuiler('category'))
+      .innerJoinAndSelect('category.product', 'product', 'category.id = product.categoryid')
+      .where('category.id = :id', { id })
+      .getMany();
     if (check) {
       if (curCate.name == updatecateDto.name) {
+        if (checkProByCate.length > 0) {
+          updatecateDto.status = "Available";
+        } else {
+          updatecateDto.status = "Out of stock";
+        }
         delete updatecateDto.userid
         const newCategory = {
           ...updatecateDto,
@@ -72,6 +83,11 @@ export class CategoryService {
         return await this.cateRepository.update(id, newCategory)
       }
       throw new ConflictException('đã có danh mục này rồi')
+    }
+    if (checkProByCate.length > 0) {
+      updatecateDto.status = "Available";
+    } else {
+      updatecateDto.status = "Out of stock";
     }
     delete updatecateDto.userid
     const newCategory = {
