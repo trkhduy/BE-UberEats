@@ -5,11 +5,13 @@ import { UpdateCartDto } from './dto/update-cart.dto';
 import { Request } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { async } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('api/cart')
 export class CartController {
-  constructor(private readonly cartService: CartService) { }
+  constructor(private readonly cartService: CartService,
+    private readonly configService: ConfigService) { }
 
   @Post()
   async create(@Body() createCartDto: CreateCartDto, @Req() req: Request & { user: any }) {
@@ -24,6 +26,9 @@ export class CartController {
   async getCart(@Req() req: Request & { user: any }) {
     const userid = req.user.user.id;
     const cartByUser = await this.cartService.getCart(userid);
+    cartByUser.forEach((item) => {
+      item.product.images = this.configService.get('SERVER_HOST') + '/upload/' + item.product.images
+    })
     return cartByUser
   }
 
