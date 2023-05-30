@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config'
 import { Response, Request } from 'express';
 
 import { AuthGuard } from '@nestjs/passport';
+import { async } from 'rxjs';
 
 
 @Controller('api/product')
@@ -163,6 +164,29 @@ export class ProductController {
 
   }
 
+  @Get('/getNewProduct')
+  async getNewPro() {
+    const newProduct = await this.productService.getNewProduct();
+    newProduct.forEach((item) => {
+      delete item.user.password;
+      delete item.user.refresh_token;
+      item.images = this.configService.get('SERVER_HOST') + '/upload/' + item.images;
+      item.user.avatar = this.configService.get('SERVER_HOST') + '/upload/' + item.user.avatar;
+    })
+    return newProduct;
+  }
+
+  @Get('/getSaleProduct')
+  async getSaleProduct() {
+    const saleProduct = await this.productService.getSaleProduct();
+    saleProduct.forEach((item) => {
+      delete item.user.password;
+      delete item.user.refresh_token;
+      item.images = this.configService.get('SERVER_HOST') + '/upload/' + item.images;
+      item.user.avatar = this.configService.get('SERVER_HOST') + '/upload/' + item.user.avatar;
+    })
+    return saleProduct;
+  }
   //getProductByUser
   @UseGuards(AuthGuard('jwt'))
   @Get('/menu')
