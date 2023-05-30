@@ -1,17 +1,31 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Req, UseGuards } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
+import { Request } from 'express';
+import { AuthGuard } from '@nestjs/passport';
+import { async } from 'rxjs';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('api/cart')
 export class CartController {
   constructor(private readonly cartService: CartService) { }
 
   @Post()
-  create(@Body() createCartDto: CreateCartDto) {
-    return this.cartService.create(createCartDto);
+  async create(@Body() createCartDto: CreateCartDto, @Req() req: Request & { user: any }) {
+    const userid = req.user.user.id;
+    createCartDto.userid = userid;
+    const newCart = await this.cartService.create(createCartDto);
+
+    return newCart
   }
 
+  @Get()
+  async getCart(@Req() req: Request & { user: any }) {
+    const userid = req.user.user.id;
+    const cartByUser = await this.cartService.getCart(userid);
+    return cartByUser
+  }
 
   @Put(':id')
   async update(@Param('id') id: number, @Body() updateCartDto: UpdateCartDto) {

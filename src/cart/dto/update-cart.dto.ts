@@ -3,7 +3,7 @@ import { CreateCartDto } from './create-cart.dto';
 import { IsNotEmpty } from 'class-validator';
 
 export class UpdateCartDto extends PartialType(CreateCartDto) {
-    @IsNotEmpty()
+
     quantity: number
-   
+
 }

@@ -6,12 +6,12 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGene
 export class Cart {
     @PrimaryGeneratedColumn()
     id: number
-    @Column()
+    @Column({ type: 'integer' })
     quantity: number
 
     @ManyToOne(() => Product, product => product.cart)
     product: Product
-    @OneToOne(() => User, user => user.cart)
+    @ManyToOne(() => User, user => user.cart)
     @JoinColumn()
     user: User
 }
