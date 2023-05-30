@@ -14,22 +14,60 @@ export class CartService {
     @InjectRepository(User) private readonly userrepository: Repository<User>
 
   ) { }
+
+  async queryBuiler(alias: string) {
+    return this.cartrepository.createQueryBuilder(alias)
+  }
+
   async create(createCartDto: CreateCartDto) {
-    const check = await this.cartrepository.findOne({ where: [{ 'quantity': createCartDto.quantity }] })
-    const product = await this.proRepository.findOne({ where: [{ 'id': createCartDto.productId }] })
-    const user = await this.userrepository.findOne({ where: [{ 'id': createCartDto.userId }] })
-    await delete createCartDto.productId
-    await delete createCartDto.userId
-    let dataCreate = {
+    const product = await this.proRepository.findOne({ where: [{ 'id': createCartDto.productid }] });
+    const user = await this.userrepository.findOne({ where: [{ 'id': createCartDto.userid }] });
+    //check cart
+    const userid = createCartDto.userid;
+    const productid = createCartDto.productid;
+    const builder = (await this.queryBuiler('cart'))
+      .innerJoinAndSelect('cart.user', 'user', 'cart.userid = user.id')
+      .where('cart.productid = :productid', { productid }).andWhere('cart.userid = :userid', { userid })
+    const checkCart = await builder.getOne();
+    //
+
+    //checkCart == true
+    if (checkCart && createCartDto.userid == checkCart.user.id) {
+      createCartDto.quantity = Number(createCartDto.quantity)
+      createCartDto.quantity += checkCart.quantity;
+      delete createCartDto.productid
+      delete createCartDto.userid
+      let dataCreate = this.cartrepository.create({
+        ...createCartDto,
+        product: product,
+        user: user
+      });
+      const newCart = await this.cartrepository.update(checkCart.id, dataCreate);
+      return newCart
+    }
+
+    // checkCart = false
+    delete createCartDto.productid
+    delete createCartDto.userid
+    let dataCreate = this.cartrepository.create({
       ...createCartDto,
       product: product,
       user: user
-    };
-    console.log(dataCreate);
-    return await this.cartrepository.save(dataCreate)
+    });
+
+    const newCart = await this.cartrepository.save(dataCreate);
+    delete newCart.user.password;
+    delete newCart.user.refresh_token;
+    return newCart
   }
 
-
+  async getCart(userid: number) {
+    const builder = (await this.queryBuiler('cart'))
+      .innerJoinAndSelect('cart.product', 'product', 'cart.productid = product.id')
+      .where('cart.userid = :userid', { userid })
+    const carts = await builder.getMany();
+    return carts
+  }
 
   async update(id: number, updateCartDto: UpdateCartDto) {
 
@@ -37,7 +75,6 @@ export class CartService {
       id: id,
       ...updateCartDto,
     };
-    console.log(dataCreate);
     return await this.cartrepository.update(id, dataCreate)
   }
 

@@ -1,11 +1,13 @@
 import { IsNotEmpty } from "class-validator";
 
 export class CreateCartDto {
+
     @IsNotEmpty()
     quantity: number
+
     @IsNotEmpty()
-    productId: number
-    @IsNotEmpty()
-    userId: number
+    productid: number
+
+    userid: number
 
 }
