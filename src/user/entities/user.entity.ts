@@ -36,7 +36,7 @@ export class User {
         length: 255,
         charset: 'utf8mb4',
         collation: 'utf8mb4_unicode_ci',
-        default: 'default-avatar.jpg'
+        default: 'default-avatar.png'
     })
     avatar: string;
 

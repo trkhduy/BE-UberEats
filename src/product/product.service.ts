@@ -14,7 +14,6 @@ export class ProductService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(Product) private readonly proRepository: Repository<Product>,
     @InjectRepository(Category) private readonly cateRepository: Repository<Category>,
-    @InjectRepository(Restaurant) private readonly resRepository: Repository<Restaurant>
   ) { }
   async create(createProductDto: CreateProductDto) {
     const check = await this.proRepository.findOne({ where: [{ 'name': createProductDto.name }] })
@@ -63,10 +62,6 @@ export class ProductService {
     return this.proRepository.createQueryBuilder(alias)
   }
 
-  async queryBuilerRes(alias: string) {
-    return this.resRepository.createQueryBuilder(alias)
-  }
-
   async update(id: number, updateProDto: UpdateProductDto): Promise<any> {
     const check = await this.proRepository.findOne({ where: [{ 'name': updateProDto.name }] })
     const curPro = await this.proRepository.findOne({ where: [{ 'id': id }] })
@@ -108,4 +103,24 @@ export class ProductService {
     return queryBuilder.getMany();
   }
 
+  async getNewProduct(): Promise<Product[]> {
+    const limit = 8;
+    const builder = (await this.queryBuiler('product'))
+      .innerJoinAndMapOne('product.user', 'user', 'user', 'product.userid=user.id')
+      .leftJoinAndMapOne('product.restaurant', 'restaurant', 'restaurant', 'user.id=restaurant.userid')
+      .orderBy('product.created_at', 'DESC').take(limit);
+    const newProduct = await builder.getMany();
+    return newProduct
+  }
+
+  async getSaleProduct(): Promise<Product[]> {
+    const limit = 8;
+    const builder = (await this.queryBuiler('product'))
+      .innerJoinAndMapOne('product.user', 'user', 'user', 'product.userid=user.id')
+      .leftJoinAndMapOne('product.restaurant', 'restaurant', 'restaurant', 'user.id=restaurant.userid')
+      .where('product.sale_price > 0')
+      .orderBy('product.created_at', 'DESC').take(limit);
+    const saleProduct = await builder.getMany();
+    return saleProduct
+  }
 }
