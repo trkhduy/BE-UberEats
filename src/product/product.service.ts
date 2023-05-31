@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -42,13 +42,46 @@ export class ProductService {
     });
 
   }
+
   async findOne(id: number): Promise<Product> {
-    const check = await this.proRepository.findOne({ where: [{ id: id }], relations: ['user', 'category'] });
-    if (!check) {
-      throw new ConflictException('không có món ăn nào tên này')
+    const builder = (await this.queryBuiler('product'))
+      .innerJoinAndMapOne('product.user', 'user', 'user', 'product.userid=user.id')
+      .innerJoinAndMapOne('product.category', 'category', 'category', 'product.categoryid=category.id')
+      .leftJoinAndMapOne('product.restaurant', 'restaurant', 'restaurant', 'user.id=restaurant.userid')
+      .where('product.id = :id', { id })
+
+    const detailPro: any = await builder.getOne();
+    if (!detailPro) {
+      throw new NotFoundException('không có món ăn nào tên này')
     }
-    return check
+    if (!detailPro.restaurant) {
+      delete detailPro.restaurant
+    }
+    delete detailPro.user.password;
+    delete detailPro.user.refresh_token;
+    return detailPro
   }
+
+  async relatedProduct(id: number): Promise<Product[]> {
+    const thisProduct = await this.findOne(id);
+    console.log(thisProduct);
+
+    const categoryid = thisProduct.category.id;
+    const limit = 8;
+    const builder = (await this.queryBuiler('product'))
+      .innerJoinAndMapOne('product.user', 'user', 'user', 'product.userid=user.id')
+      .innerJoinAndMapOne('product.category', 'category', 'category', 'product.categoryid=category.id')
+      .leftJoinAndMapOne('product.restaurant', 'restaurant', 'restaurant', 'user.id=restaurant.userid')
+      .where('product.categoryid = :categoryid', { categoryid })
+      .orderBy('product.created_at', 'DESC').take(limit);
+
+    const relatedProduct = await builder.getMany();
+    const newRelate = relatedProduct.filter((item) => {
+      return item.id != thisProduct.id
+    })
+    return newRelate;
+  }
+
   async fillter(categoryid: number) {
 
     const productByCategory = await this.proRepository.createQueryBuilder('product')
