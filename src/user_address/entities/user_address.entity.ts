@@ -46,5 +46,5 @@ export class UserAddress {
     user: User
     @OneToOne(() => Order, order => order.user_address)
     order: Order
-   
+
 }

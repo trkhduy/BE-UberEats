@@ -11,19 +11,31 @@ export class UserAddressService {
   constructor(@InjectRepository(UserAddress) private readonly addressRepository: Repository<UserAddress>,
     @InjectRepository(User) private readonly userrepository: Repository<User>
   ) { }
+
+  async queryBuiler(alias: string) {
+    return this.addressRepository.createQueryBuilder(alias)
+  }
+
   async create(createAddressDto: CreateUserAddressDto) {
     const user = await this.userrepository.findOne({ where: [{ 'id': createAddressDto.userid }] })
     await delete createAddressDto.userid
     let dataCreate = {
       ...createAddressDto,
       user: user,
-
     };
-    console.log(dataCreate);
     return await this.addressRepository.save(dataCreate)
   }
-  async findAll(): Promise<UserAddress[]> {
-    return await this.addressRepository.find();
+
+  async findByUser(userid: number): Promise<UserAddress[]> {
+    const builder = (await this.queryBuiler('user_address'))
+      .innerJoinAndSelect('user_address.user', 'user', 'user_address.userid = user.id')
+      .where('userid = :userid', { userid })
+    const addressByUser = await builder.getMany();
+    addressByUser.forEach((e) => {
+      delete e.user.password;
+      delete e.user.refresh_token;
+    })
+    return addressByUser;
   }
 
   async findOne(id: number): Promise<UserAddress> {
