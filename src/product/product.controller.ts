@@ -211,10 +211,31 @@ export class ProductController {
     return products;
   }
 
-  // @Get(':id')
-  // async findOne(@Param('id') id: string): Promise<Product> {
-  //   return await this.productService.findOne(+id);
-  // }
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<Product> {
+    const detailPro = await this.productService.findOne(+id);
+    detailPro.user.avatar = this.configService.get('SERVER_HOST') + '/upload/' + detailPro.user.avatar
+    detailPro.images = this.configService.get('SERVER_HOST') + '/upload/' + detailPro.images
+    return detailPro;
+  }
+
+  @Get(':id/relatedProduct')
+  async getRelatedProduct(@Param('id') id: string): Promise<Product[]> {
+    const relateProduct: any = await this.productService.relatedProduct(+id);
+    if (relateProduct) {
+      relateProduct.forEach((item: any) => {
+        if (!item.restaurant) {
+          delete item.restaurant;
+        }
+        delete item.user.password;
+        delete item.user.refresh_token;
+        item.user.avatar = this.configService.get('SERVER_HOST') + '/upload/' + item.user.avatar;
+        item.images = this.configService.get('SERVER_HOST') + '/upload/' + item.images;
+      })
+    }
+    return relateProduct
+  }
+
 
   // @Get('fill/:categoryid')
   // async fill(@Param('categoryid') categoryid: number,) {
