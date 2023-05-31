@@ -81,7 +81,8 @@ export class ProductController {
           }
           delete item.user.password;
           delete item.user.refresh_token;
-          item.images = this.configService.get('SERVER_HOST') + '/upload/' + item.images
+          item.user.avatar = this.configService.get('SERVER_HOST') + '/upload/' + item.user.avatar;
+          item.images = this.configService.get('SERVER_HOST') + '/upload/' + item.images;
         })
       }
       return productByUser
@@ -105,6 +106,7 @@ export class ProductController {
           }
           delete item.user.password;
           delete item.user.refresh_token;
+          item.user.avatar = this.configService.get('SERVER_HOST') + '/upload/' + item.user.avatar;
           item.images = this.configService.get('SERVER_HOST') + '/upload/' + item.images
         })
       }
@@ -131,6 +133,7 @@ export class ProductController {
           }
           delete item.user.password;
           delete item.user.refresh_token;
+          item.user.avatar = this.configService.get('SERVER_HOST') + '/upload/' + item.user.avatar;
           item.images = this.configService.get('SERVER_HOST') + '/upload/' + item.images
         })
       }
@@ -156,6 +159,7 @@ export class ProductController {
         }
         delete item.user.password;
         delete item.user.refresh_token;
+        item.user.avatar = this.configService.get('SERVER_HOST') + '/upload/' + item.user.avatar;
         item.images = this.configService.get('SERVER_HOST') + '/upload/' + item.images
       })
     }
