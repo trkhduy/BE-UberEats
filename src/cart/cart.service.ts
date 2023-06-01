@@ -62,9 +62,13 @@ export class CartService {
   }
 
   async getCart(userid: number) {
+
     const builder = (await this.queryBuiler('cart'))
       .innerJoinAndSelect('cart.product', 'product', 'cart.productid = product.id')
+      .leftJoinAndMapOne('product.restaurant', 'product.user', 'user', 'product.userid = user.id')
       .where('cart.userid = :userid', { userid })
+
+
     const carts = await builder.getMany();
     return carts
   }
