@@ -11,6 +11,7 @@ export class Cart {
 
     @ManyToOne(() => Product, product => product.cart)
     product: Product
+    
     @ManyToOne(() => User, user => user.cart)
     @JoinColumn()
     user: User

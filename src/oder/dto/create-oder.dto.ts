@@ -16,10 +16,4 @@ export class CreateOderDto {
     note: string;
     
     driverid: number;
-
-
-
-
-
-
 }

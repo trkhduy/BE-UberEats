@@ -4,6 +4,8 @@ import { IsEmail, IsNotEmpty, IsPhoneNumber } from 'class-validator';
 
 export class UpdateUserAddressDto extends PartialType(CreateUserAddressDto) {
 
+    name: string;
+
     name_address: string;
 
     note: string;

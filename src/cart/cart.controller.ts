@@ -26,8 +26,9 @@ export class CartController {
   async getCart(@Req() req: Request & { user: any }) {
     const userid = req.user.user.id;
     const cartByUser = await this.cartService.getCart(userid);
-    cartByUser.forEach((item) => {
+    cartByUser.forEach((item: any) => {
       item.product.images = this.configService.get('SERVER_HOST') + '/upload/' + item.product.images
+      item.product.restaurant.avatar = this.configService.get('SERVER_HOST') + '/upload/' + item.product.restaurant.avatar
     })
     return cartByUser
   }

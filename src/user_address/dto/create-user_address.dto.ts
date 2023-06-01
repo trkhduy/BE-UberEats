@@ -3,6 +3,9 @@ import { IsEmail, IsNotEmpty, IsPhoneNumber } from "class-validator";
 export class CreateUserAddressDto {
 
     @IsNotEmpty({ message: 'Vui lòng không để trống' })
+    name: string;
+
+    @IsNotEmpty({ message: 'Vui lòng không để trống' })
     name_address: string;
 
     note: string;

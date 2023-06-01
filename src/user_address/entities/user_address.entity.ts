@@ -15,6 +15,14 @@ export class UserAddress {
         charset: 'utf8mb4',
         collation: 'utf8mb4_unicode_ci',
     })
+    name: string
+
+    @Column({
+        type: 'varchar',
+        length: 255,
+        charset: 'utf8mb4',
+        collation: 'utf8mb4_unicode_ci',
+    })
     name_address: string
 
 
