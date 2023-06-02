@@ -8,7 +8,7 @@ export class CreateVoucherDto {
     discount: number;
 
     @IsNotEmpty({ message: 'Vui lòng không để trống conditions' })
-    conditions: string;
+    conditions: number;
 
     images: string;
 

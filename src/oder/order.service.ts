@@ -18,60 +18,49 @@ export class OrderService {
     @InjectRepository(StatusOder) private readonly statusOrderRepository: Repository<StatusOder>,
     @InjectRepository(UserAddress) private readonly userAddressRepository: Repository<UserAddress>
   ) { }
-  async create(restaurantid: number, statusOderid: number, userAddressid: number, userid: number, driverid: number, createOrderDto: CreateOderDto) {
-    const check = await this.orderRepository.findOne({ where: [{ 'note': createOrderDto.note }] })
-    const res = await this.restaurantRepository.findOne({ where: [{ 'id': createOrderDto.restaurantid }] })
+  async create(createOrderDto: CreateOderDto) {
+    const res = await this.userRepository.findOne({ where: [{ 'id': createOrderDto.restaurantid }] })
     const user = await this.userRepository.findOne({ where: [{ 'id': createOrderDto.userid }] })
-    const driver = await this.userRepository.findOne({ where: [{ 'id': createOrderDto.driverid }] })
     const user_address = await this.userAddressRepository.findOne({ where: [{ 'id': createOrderDto.userAddressid }] })
-    const statusOder = await this.statusOrderRepository.findOne({ where: [{ 'id': createOrderDto.statusOderid }] })
+    const statusOder = await this.statusOrderRepository.findOne({ where: [{ 'id': createOrderDto.statusid }] })
     await delete createOrderDto.userid
     await delete createOrderDto.driverid
     await delete createOrderDto.restaurantid
     await delete createOrderDto.userAddressid
-    await delete createOrderDto.statusOderid
+    await delete createOrderDto.statusid
 
     let dataCreate = {
       ...createOrderDto,
       restaurant: res,
       user: user,
-      driver: driver,
       user_address: user_address,
       status: statusOder
     };
-    return await this.orderRepository.save(dataCreate)
-
+    const newOrder = await this.orderRepository.save(dataCreate)
+    delete newOrder.user.password;
+    delete newOrder.user.refresh_token;
+    delete newOrder.restaurant.password;
+    delete newOrder.restaurant.refresh_token;
+    return newOrder
   }
 
 
   async update(id: number, updateOrderDto: UpdateOderDto): Promise<any> {
-    const check = await this.orderRepository.findOne({ where: [{ 'note': updateOrderDto.note }] })
-    const res = await this.restaurantRepository.findOne({ where: [{ 'id': updateOrderDto.restaurantid }] })
-    const user = await this.userRepository.findOne({ where: [{ 'id': updateOrderDto.userid }] })
-    const driver = await this.userRepository.findOne({ where: [{ 'id': updateOrderDto.driverid }] })
-    const user_address = await this.userAddressRepository.findOne({ where: [{ 'id': updateOrderDto.userAddressid }] })
-    const statusOder = await this.statusOrderRepository.findOne({ where: [{ 'id': updateOrderDto.statusOderid }] })
-    await delete updateOrderDto.userid
-    await delete updateOrderDto.driverid
-    await delete updateOrderDto.restaurantid
-    await delete updateOrderDto.userAddressid
-    await delete updateOrderDto.statusOderid
 
-    let dataUpdate = {
-      id: id,
+    const driver = await this.userRepository.findOne({ where: { id: updateOrderDto.driverid } });
+    const statusOrder = await this.statusOrderRepository.findOne({ where: { id: updateOrderDto.statusid } });
+    delete updateOrderDto.driverid;
+    delete updateOrderDto.statusid;
+    const dataUpdate = {
       ...updateOrderDto,
-      restaurant: res,
-      user: user,
       driver: driver,
-      user_address: user_address,
-      status: statusOder
+      status: statusOrder
     };
-    return await this.orderRepository.update(id, dataUpdate)
-
-    //  this.proRepository.update(id, newPro);
+    const update = await this.orderRepository.update(id, dataUpdate);
+    return update;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} oder`;
+  async remove(id: number) {
+    return await this.orderRepository.delete(id);
   }
 }

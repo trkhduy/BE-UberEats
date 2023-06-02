@@ -12,6 +12,12 @@ export class Cart {
     @ManyToOne(() => Product, product => product.cart)
     product: Product
     
+    @Column({ type: "timestamp", default: () => 'CURRENT_TIMESTAMP' })
+    created_at: Date
+
+    @Column({ type: "timestamp", default: () => 'CURRENT_TIMESTAMP' })
+    update_at: Date
+
     @ManyToOne(() => User, user => user.cart)
     @JoinColumn()
     user: User

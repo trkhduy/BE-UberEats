@@ -8,7 +8,7 @@ export class UpdateVoucherDto extends PartialType(CreateVoucherDto) {
 
     discount: number;
 
-    conditions: string;
+    conditions: number;
 
     userid: number;
 
