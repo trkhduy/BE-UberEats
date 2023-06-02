@@ -5,15 +5,14 @@ export class CreateOderDto {
     restaurantid: number;
 
     @IsNotEmpty({ message: 'Vui lòng không để trống' })
-    statusOderid: number;
+    statusid: number;
 
     @IsNotEmpty({ message: 'Vui lòng không để trống' })
     userAddressid: number;
 
-    @IsNotEmpty({ message: 'Vui lòng không để trống' })
     userid: number;
 
     note: string;
-    
+
     driverid: number;
 }

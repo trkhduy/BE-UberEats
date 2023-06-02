@@ -3,7 +3,7 @@ import { Restaurant } from "src/restaurant/entities/restaurant.entity";
 import { StatusOder } from "src/status_oder/entities/status_oder.entity";
 import { User } from "src/user/entities/user.entity";
 import { UserAddress } from "src/user_address/entities/user_address.entity";
-import { Column, Entity, Index, JoinColumn, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 import { Voucher } from "src/voucher/entities/voucher.entity";
 import { OrderDetail } from "src/orderdetail/entities/orderdetail.entity";
@@ -21,19 +21,25 @@ export class Order {
     })
     note: string;
 
-    @OneToOne(() => UserAddress, user_address => user_address.order)
+    @Column({ type: "timestamp", default: () => 'CURRENT_TIMESTAMP' })
+    created_at: Date
+
+    @Column({ type: "timestamp", default: () => 'CURRENT_TIMESTAMP' })
+    update_at: Date
+
+    @ManyToOne(() => UserAddress, user_address => user_address.order)
     @JoinColumn()
     user_address: UserAddress;
 
-    @OneToOne(() => Restaurant, restaurant => restaurant.order)
+    @ManyToOne(() => User, restaurant => restaurant.order_restaurant)
     @JoinColumn()
-    restaurant: Restaurant;
+    restaurant: User;
 
-    @OneToOne(() => StatusOder, status => status.order)
+    @ManyToOne(() => StatusOder, status => status.order)
     @JoinColumn()
     status: StatusOder;
 
-    @OneToOne(() => OrderDetail, order_detail => order_detail.order)
+    @OneToMany(() => OrderDetail, order_detail => order_detail.order)
     order_detail: OrderDetail;
 
     @ManyToOne(() => User, driver => driver.order_driver)
@@ -43,7 +49,7 @@ export class Order {
     @ManyToOne(() => User, user => user.order)
     @JoinColumn({ name: "userId" })
     user: User;
-    @ManyToOne(() => Voucher, voucher => voucher.order)
 
+    @ManyToOne(() => Voucher, voucher => voucher.order)
     voucher: Voucher
 }

@@ -12,15 +12,7 @@ export class OrderdetailController {
     return this.orderdetailService.create(createOrderdetailDto);
   }
 
-  @Get()
-  findAll() {
-    return this.orderdetailService.findAll();
-  }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.orderdetailService.findOne(+id);
-  }
 
   @Put(':id')
   async update(@Param('id') id: number, @Body() updateOrderDetailDto: UpdateOrderdetailDto) {
