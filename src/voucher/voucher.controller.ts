@@ -65,6 +65,7 @@ export class VoucherController {
         builder.andWhere('product.name LIKE :keyword', { keyword: `%${keyword}%` });
       }
     }
+    
     const vouchers = await builder.getMany();
     if (vouchers.length > 0) {
       vouchers.forEach((voucher) => {

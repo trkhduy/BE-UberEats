@@ -7,11 +7,14 @@ import { Voucher } from './entities/voucher.entity';
 
 import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 import { User } from 'src/user/entities/user.entity';
+import { OrderUpdateGateway } from 'src/order-update/order-update.gateway';
 
 @Injectable()
 export class VoucherService {
-  constructor(@InjectRepository(Voucher) private readonly voucherRepository: Repository<Voucher>,
-    @InjectRepository(User) private readonly userRepository: Repository<User>
+  constructor(
+    @InjectRepository(Voucher) private readonly voucherRepository: Repository<Voucher>,
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
+    private orderWS: OrderUpdateGateway
   ) { }
 
   async create(CreateVoucherDto: CreateVoucherDto) {
@@ -32,10 +35,12 @@ export class VoucherService {
   }
 
   async findAll(): Promise<Voucher[]> {
+
     return await this.voucherRepository.find();
   }
 
   async findOne(id: number): Promise<Voucher> {
+
     const check = await this.voucherRepository.findOne({ where: [{ id: id }] });
     if (!check) {
       throw new ConflictException('không có voucher này')
@@ -73,6 +78,7 @@ export class VoucherService {
   }
 
   async queryBuiler(alias: string) {
+    this.orderWS.handleGetMessage()
     return this.voucherRepository.createQueryBuilder(alias)
   }
 }
