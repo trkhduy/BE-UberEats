@@ -22,8 +22,6 @@ export class OrderController {
       result: res
     }
   }
-
-
   @Put(':id')
   async update(@Param('id') id: number, @Body() updateOrderDto: UpdateOderDto) {
     const update = await this.oderService.update(id, updateOrderDto)

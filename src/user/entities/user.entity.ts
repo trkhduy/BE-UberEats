@@ -79,6 +79,8 @@ export class User {
 
     @OneToMany(() => Order, order_driver => order_driver.driver)
     order_driver: Order[]
+    @OneToMany(() => Order, order_driver => order_driver.driver)
+    order_res: Order[]
 
     @OneToMany(() => Cart, cart => cart.user)
     cart: Cart[]

@@ -3,7 +3,7 @@ import { Restaurant } from "src/restaurant/entities/restaurant.entity";
 import { StatusOder } from "src/status_oder/entities/status_oder.entity";
 import { User } from "src/user/entities/user.entity";
 import { UserAddress } from "src/user_address/entities/user_address.entity";
-import { Column, Entity, Index, JoinColumn, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 import { Voucher } from "src/voucher/entities/voucher.entity";
 import { OrderDetail } from "src/orderdetail/entities/orderdetail.entity";
@@ -25,11 +25,11 @@ export class Order {
     @JoinColumn()
     user_address: UserAddress;
 
-    @OneToOne(() => Restaurant, restaurant => restaurant.order)
+    @ManyToOne(() => User, restaurant => restaurant.order_res)
     @JoinColumn()
-    restaurant: Restaurant;
+    restaurant: User;
 
-    @OneToOne(() => StatusOder, status => status.order)
+    @ManyToOne(() => StatusOder, status => status.order)
     @JoinColumn()
     status: StatusOder;
 
@@ -44,6 +44,5 @@ export class Order {
     @JoinColumn({ name: "userId" })
     user: User;
     @ManyToOne(() => Voucher, voucher => voucher.order)
-
     voucher: Voucher
 }
