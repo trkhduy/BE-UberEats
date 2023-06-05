@@ -14,4 +14,8 @@ export class UpdateVoucherDto extends PartialType(CreateVoucherDto) {
 
     images: string;
 
+    code: string;
+
+    quantity: number;
+
 }

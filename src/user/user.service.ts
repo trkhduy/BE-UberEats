@@ -43,8 +43,8 @@ export class UserService {
     }
   }
 
-  async findAll(): Promise<User[]> {
-    return await this.userrepository.find();
+  async findByRes(): Promise<User[]> {
+    return await this.userrepository.find({ where: [{ 'role': 3 }] });
   }
 
   async updateInfo(id: number, updateUserDto: UpdateUserDto): Promise<UpdateResult> {

@@ -21,13 +21,14 @@ export class Voucher {
     })
     discount: number;
 
-    @Column({
-        type: 'varchar',
-        length: 255,
-        charset: 'utf8mb4',
-        collation: 'utf8mb4_unicode_ci',
-    })
+    @Column()
     conditions: number;
+
+    @Column()
+    code: string;
+
+    @Column()
+    quantity: number;
 
     @Column({
         type: 'varchar',
