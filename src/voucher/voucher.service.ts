@@ -78,7 +78,6 @@ export class VoucherService {
   }
 
   async queryBuiler(alias: string) {
-    this.orderWS.handleGetMessage()
     return this.voucherRepository.createQueryBuilder(alias)
   }
 }

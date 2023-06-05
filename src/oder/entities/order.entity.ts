@@ -21,11 +21,17 @@ export class Order {
     })
     note: string;
 
-    @OneToOne(() => UserAddress, user_address => user_address.order)
+    @Column({ type: "timestamp", default: () => 'CURRENT_TIMESTAMP' })
+    created_at: Date
+
+    @Column({ type: "timestamp", default: () => 'CURRENT_TIMESTAMP' })
+    update_at: Date
+
+    @ManyToOne(() => UserAddress, user_address => user_address.order)
     @JoinColumn()
     user_address: UserAddress;
 
-    @ManyToOne(() => User, restaurant => restaurant.order_res)
+    @ManyToOne(() => User, restaurant => restaurant.order_restaurant)
     @JoinColumn()
     restaurant: User;
 
@@ -33,7 +39,7 @@ export class Order {
     @JoinColumn()
     status: StatusOder;
 
-    @OneToOne(() => OrderDetail, order_detail => order_detail.order)
+    @OneToMany(() => OrderDetail, order_detail => order_detail.order)
     order_detail: OrderDetail;
 
     @ManyToOne(() => User, driver => driver.order_driver)

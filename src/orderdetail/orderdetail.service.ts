@@ -27,15 +27,7 @@ export class OrderdetailService {
       product: product,
       order: oder
     };
-    console.log(dataCreate);
     return await this.orderDetailRepository.save(dataCreate)
-  }
-  findAll() {
-    return `This action returns all orderdetail`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} orderdetail`;
   }
 
   async update(id: number, updateOrderDetailDto: UpdateOrderdetailDto): Promise<any> {
@@ -56,8 +48,9 @@ export class OrderdetailService {
     //  this.proRepository.update(id, newPro);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} orderdetail`;
+  async remove(id: number) {
+
+   return
   }
   
 

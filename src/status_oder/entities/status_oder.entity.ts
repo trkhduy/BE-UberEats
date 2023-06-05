@@ -1,5 +1,5 @@
 import { Order } from "src/oder/entities/order.entity";
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('status_oder')
 export class StatusOder {
@@ -20,6 +20,5 @@ export class StatusOder {
     })
     role: string
     @OneToMany(() => Order, order => order.status)
-
-    order: Order
+    order: Order[]
 }

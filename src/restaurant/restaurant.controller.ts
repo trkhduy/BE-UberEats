@@ -57,7 +57,6 @@ export class RestaurantController {
 
   @Put(':id')
   async update(@Param('id') id: number, @Body() updateRestaurant: UpdateRestaurantDto, @Req() req: Request & { user: any }) {
-    console.log(updateRestaurant);
     updateRestaurant.userid = req.user.user.id;
 
     const update = await this.restaurantService.update(id, updateRestaurant);
