@@ -4,15 +4,16 @@ import { UpdateVoucherDto } from './dto/update-voucher.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { Voucher } from './entities/voucher.entity';
-
 import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 import { User } from 'src/user/entities/user.entity';
-import { async } from 'rxjs';
+import { OrderUpdateGateway } from 'src/order-update/order-update.gateway';
 
 @Injectable()
 export class VoucherService {
-  constructor(@InjectRepository(Voucher) private readonly voucherRepository: Repository<Voucher>,
-    @InjectRepository(User) private readonly userRepository: Repository<User>
+  constructor(
+    @InjectRepository(Voucher) private readonly voucherRepository: Repository<Voucher>,
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
+    private orderWS: OrderUpdateGateway
   ) { }
 
   async queryBuilder(alias: string) {
@@ -36,10 +37,12 @@ export class VoucherService {
   }
 
   async findAll(): Promise<Voucher[]> {
+
     return await this.voucherRepository.find();
   }
 
   async findOne(id: number): Promise<Voucher> {
+
     const check = await this.voucherRepository.findOne({ where: [{ id: id }] });
     if (!check) {
       throw new ConflictException('không có voucher này')

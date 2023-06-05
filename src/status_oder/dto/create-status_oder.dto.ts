@@ -6,7 +6,7 @@ export class CreateStatusOderDto {
     name: string;
 
 
-    @IsNotEmpty({ message: 'Vui lòng không để trống mật khẩu' })
+    @IsNotEmpty({ message: 'Vui lòng không để trống role' })
     role: string;
 
    

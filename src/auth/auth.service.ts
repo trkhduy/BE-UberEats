@@ -5,12 +5,14 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/user/entities/user.entity";
 import { Repository } from "typeorm";
 import * as bcrypt from "bcrypt"
+import { ConfigService } from "@nestjs/config";
 
 
 @Injectable()
 export class AuthService {
     constructor(
         private jwtService: JwtService,
+        private readonly configService: ConfigService,
         @InjectRepository(User) private userRepository: Repository<User>
     ) { }
 
@@ -89,5 +91,14 @@ export class AuthService {
 
     async logOut(id: number) {
         await this.userRepository.update(id, { refresh_token: null })
+    }
+    public async getUserFromAuthenticationToken(token: string) {
+        const payload: any = this.jwtService.verify(token, {
+            secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET')
+        });
+        if (payload.sub) {
+            // console.log('pay', payload);
+            return payload.sub;
+        }
     }
 }

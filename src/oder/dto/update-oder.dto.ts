@@ -5,7 +5,7 @@ import { IsNotEmpty } from 'class-validator';
 export class UpdateOderDto extends PartialType(CreateOderDto) {
 
     statusid: number;
-
     driverid: number;
-
+    clientid: number;
+    restaurantid: number;
 }

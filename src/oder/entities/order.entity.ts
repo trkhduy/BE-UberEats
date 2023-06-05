@@ -49,7 +49,6 @@ export class Order {
     @ManyToOne(() => User, user => user.order)
     @JoinColumn({ name: "userId" })
     user: User;
-
     @ManyToOne(() => Voucher, voucher => voucher.order)
     voucher: Voucher
 }

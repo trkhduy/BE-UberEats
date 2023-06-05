@@ -15,6 +15,7 @@ import { RefreshTokenStrategy } from './strategy/refreshToken.strategy';
             secret: jwtConstants.secret
         })],
     controllers: [AuthController],
-    providers: [AuthService, JwtStrategy, RefreshTokenStrategy]
+    providers: [AuthService, JwtStrategy, RefreshTokenStrategy],
+    exports: [AuthService]
 })
 export class AuthModule { }

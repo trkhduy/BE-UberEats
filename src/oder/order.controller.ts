@@ -4,6 +4,7 @@ import { CreateOderDto } from './dto/create-oder.dto';
 import { UpdateOderDto } from './dto/update-oder.dto';
 import { Request } from 'express';
 import { AuthGuard } from '@nestjs/passport';
+import { Order } from './entities/order.entity';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('api/order')
@@ -23,13 +24,41 @@ export class OrderController {
       result: res
     }
   }
-
-
+  @Get('/getDetailOrderFindDriver')
+  async getDetailOrderFindDriver(@Param() id: number, @Req() req: Request & { user: any }): Promise<Order[]> {
+    const userid = req.user.user.id;
+    const addressByUser = await this.oderService.findOrderNeedDriver(4, userid);
+    return addressByUser;
+  }
+  @Get('/getOrderFindDriver')
+  async getOrderFindDriver(@Req() req: Request & { user: any }): Promise<Order[]> {
+    const userid = req.user.user.id;
+    const addressByUser = await this.oderService.findOrderNeedDriver(3);
+    return addressByUser;
+  }
+  @Get('/getByRestaurant')
+  async getByRestaurant(@Req() req: Request & { user: any }): Promise<Order[]> {
+    const userid = req.user.user.id;
+    const addressByUser = await this.oderService.findByRes(userid);
+    return addressByUser;
+  }
+  @Get('/getByDriver')
+  async getByDriver(@Req() req: Request & { user: any }): Promise<Order[]> {
+    const userid = req.user.user.id;
+    const addressByUser = await this.oderService.findByDriver(userid);
+    return addressByUser;
+  }
+  @Get('/getByClient')
+  async getByClient(@Req() req: Request & { user: any }): Promise<Order[]> {
+    const userid = req.user.user.id;
+    const addressByUser = await this.oderService.findByClient(userid);
+    return addressByUser;
+  }
   @Put(':id')
-  async update(@Param('id') id: number, @Body() updateOrderDto: UpdateOderDto) {
+  async update(@Param('id') id: number, @Req() req: Request & { user: any }, @Body() updateOrderDto: UpdateOderDto) {
     console.log(updateOrderDto);
-    
-    const update = await this.oderService.update(id, updateOrderDto)
+
+    const update = await this.oderService.update(id, updateOrderDto, req.user.user.id)
     return {
       statuscode: 200,
       message: "cập nhật thành công",

@@ -78,6 +78,7 @@ export class VoucherController {
         builder.orderBy('voucher.discount', sortBy);
       }
     }
+    
     const vouchers = await builder.getMany();
     if (vouchers.length > 0) {
       vouchers.forEach((voucher) => {

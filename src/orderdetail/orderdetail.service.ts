@@ -18,7 +18,6 @@ export class OrderdetailService {
   ) { }
 
   async create(createOderDetailDto: CreateOrderdetailDto) {
-
     const product = await this.proRepository.findOne({ where: [{ 'id': createOderDetailDto.productid }] })
     const oder = await this.orderRepository.findOne({ where: [{ 'id': createOderDetailDto.orderid }] })
     await delete createOderDetailDto.productid
@@ -53,4 +52,6 @@ export class OrderdetailService {
 
    return
   }
+  
+
 }
