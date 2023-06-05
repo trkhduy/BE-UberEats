@@ -7,6 +7,7 @@ import { Voucher } from './entities/voucher.entity';
 
 import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 import { User } from 'src/user/entities/user.entity';
+import { async } from 'rxjs';
 
 @Injectable()
 export class VoucherService {
@@ -14,13 +15,16 @@ export class VoucherService {
     @InjectRepository(User) private readonly userRepository: Repository<User>
   ) { }
 
+  async queryBuilder(alias: string) {
+    return this.voucherRepository.createQueryBuilder(alias)
+  }
   async create(CreateVoucherDto: CreateVoucherDto) {
     const check = await this.voucherRepository.findOne({ where: [{ 'name': CreateVoucherDto.name }] })
+    const checkCode = await this.voucherRepository.findOne({ where: [{ 'code': CreateVoucherDto.code }] })
     const user = await this.userRepository.findOne({ where: [{ 'id': CreateVoucherDto.userid }] })
     await delete CreateVoucherDto.userid
-    if (check) {
-      throw new ConflictException('đã có voucher này rồi')
-
+    if (check || checkCode) {
+      throw new ConflictException('Voucher already exists')
     }
 
     let dataCreate = this.voucherRepository.create({
@@ -74,5 +78,11 @@ export class VoucherService {
 
   async queryBuiler(alias: string) {
     return this.voucherRepository.createQueryBuilder(alias)
+  }
+
+  async findVoucherByCode(code: string): Promise<Voucher> {
+    const detailVou = ((await this.queryBuilder('voucher')).where('voucher.code LIKE :code', { code: `%${code}%` }));
+    console.log(detailVou.getQuery());
+    return await detailVou.getOne();
   }
 }

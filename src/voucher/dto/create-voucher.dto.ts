@@ -10,6 +10,11 @@ export class CreateVoucherDto {
     @IsNotEmpty({ message: 'Vui lòng không để trống conditions' })
     conditions: number;
 
+    // @IsNotEmpty({ message: 'Vui lòng không để trống code' })
+    code: string;
+
+    quantity: number;
+
     images: string;
 
     userid: number;

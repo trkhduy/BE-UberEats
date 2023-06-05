@@ -39,6 +39,8 @@ export class VoucherController {
     images: Express.Multer.File,
     @Req() req: Request & { user: any }
   ) {
+    console.log(createVoucherDto);
+
     if (!images.filename) {
       throw new BadRequestException('thiếu ảnh r kìa');
     }
@@ -56,13 +58,24 @@ export class VoucherController {
 
   //get Voucher By Client
   @Get()
-  async findAll(@Query('name') keyword: string, @Query('userid') userid: number, @Req() req: Request,): Promise<Voucher[]> {
+  async findAll(@Query('name') keyword: string, @Query('userid') userid: number, @Query('sortBy') sortBy: any, @Req() req: Request,): Promise<Voucher[]> {
     const builder = (await this.voucherService.queryBuiler('voucher'))
     builder.innerJoinAndMapOne('voucher.user', 'user', 'user', 'voucher.userid=user.id')
     if (userid) {
       builder.andWhere('user.id = :userid', { userid })
       if (keyword) {
-        builder.andWhere('product.name LIKE :keyword', { keyword: `%${keyword}%` });
+        builder.andWhere('voucher.name LIKE :keyword', { keyword: `%${keyword}%` });
+      }
+      if (sortBy) {
+        builder.orderBy('voucher.discount', sortBy);
+      }
+    }
+    if (!userid) {
+      if (keyword) {
+        builder.andWhere('voucher.name LIKE :keyword', { keyword: `%${keyword}%` });
+      }
+      if (sortBy) {
+        builder.orderBy('voucher.discount', sortBy);
       }
     }
     const vouchers = await builder.getMany();
@@ -99,7 +112,12 @@ export class VoucherController {
 
     return vouchers
   }
-
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/detailVoucher/:code')
+  async detailVoucher(@Param('code') code: string) {
+    const detailVoucher = await this.voucherService.findVoucherByCode(code)
+    return detailVoucher;
+  }
   // @Get(':id')
   // async findOne(@Param('id') id: string): Promise<Voucher> {
   //   return await this.voucherService.findOne(+id);
@@ -127,6 +145,7 @@ export class VoucherController {
     images: Express.Multer.File,
     @Req() req: Request & { user: any }
   ) {
+    console.log(updateVoucherDto);
     if (!images) {
       delete updateVoucherDto.images;
     } else {
