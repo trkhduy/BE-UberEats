@@ -28,10 +28,9 @@ export class UserController {
     }
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Get()
-  async findAll(): Promise<User[]> {
-    return await this.userService.findAll();
+  @Get('restaurant')
+  async getUserByRes(): Promise<User[]> {
+    return await this.userService.findByRes();
   }
 
   @UseGuards(AuthGuard('jwt'))
