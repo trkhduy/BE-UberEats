@@ -59,9 +59,12 @@ export class OrderService {
       .leftJoinAndSelect('order.driver', 'driver', 'order.driverid = driver.id')
       .leftJoinAndSelect('order.order_detail', 'order_detail', 'order.id = order_detail.orderid')
       .leftJoinAndSelect('order_detail.product', 'product', 'order_detail.productId = product.id')
+      .leftJoinAndSelect('restaurant.res', 'res', 'restaurant.id = res.userid')
       .where('status_oder.id = :statusId', { statusId })
     id && builder.andWhere('driver.id=:id', { id })
     const addressByUser = await builder.getMany();
+    console.log(addressByUser);
+
     addressByUser.map((item: any) => {
       return item.order_detail.map((item2: any) => item2.product.images && (item2.product.images = this.configService.get('SERVER_HOST') + '/upload/' + item2.product.images))
     })
