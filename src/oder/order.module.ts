@@ -16,8 +16,9 @@ import { AuthModule } from 'src/auth/auth.module';
   imports: [
     TypeOrmModule.forFeature([Order]),
     forwardRef(() => UserModule),
-    forwardRef(() => OrderUpdateModule),
-    OrderModule,
+    // forwardRef(() => OrderUpdateModule),
+    OrderUpdateModule,
+    // OrderModule,
     RestaurantModule,
     StatusOderModule,
     UserAddressModule,

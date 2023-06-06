@@ -11,7 +11,7 @@ import { StatusOder } from 'src/status_oder/entities/status_oder.entity';
 import { log } from 'console';
 import { OrderUpdateGateway } from 'src/order-update/order-update.gateway';
 import { ConfigService } from '@nestjs/config';
-
+import { Module, forwardRef, Inject } from '@nestjs/common';
 @Injectable()
 export class OrderService {
   constructor(
@@ -19,10 +19,11 @@ export class OrderService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(StatusOder) private readonly statusOrderRepository: Repository<StatusOder>,
     @InjectRepository(UserAddress) private readonly userAddressRepository: Repository<UserAddress>,
-    private readonly orderGetway: OrderUpdateGateway,
+    @Inject(forwardRef(() => OrderUpdateGateway)) private readonly orderGetway: OrderUpdateGateway,
     private readonly configService: ConfigService
   ) { }
   async create(createOrderDto: CreateOderDto) {
+    let restaurantid = createOrderDto.restaurantid
     const res = await this.userRepository.findOne({ where: [{ 'id': createOrderDto.restaurantid }] })
     const user = await this.userRepository.findOne({ where: [{ 'id': createOrderDto.userid }] })
     const user_address = await this.userAddressRepository.findOne({ where: [{ 'id': createOrderDto.userAddressid }] })
@@ -45,7 +46,10 @@ export class OrderService {
     delete newOrder.user.refresh_token;
     delete newOrder.restaurant.password;
     delete newOrder.restaurant.refresh_token;
-    await this.findByRes(newOrder.restaurant.id)
+    console.log('res', restaurantid);
+
+    this.orderGetway.handleGetOrder(restaurantid)
+    // this.orderGetway.test()
     return newOrder
   }
 
@@ -60,12 +64,12 @@ export class OrderService {
       .leftJoinAndSelect('order.order_detail', 'order_detail', 'order.id = order_detail.orderid')
       .leftJoinAndSelect('order_detail.product', 'product', 'order_detail.productId = product.id')
       .where('status_oder.id = :statusId', { statusId })
+      .orderBy('order.created_at', 'DESC')
     id && builder.andWhere('driver.id=:id', { id })
     const addressByUser = await builder.getMany();
     addressByUser.map((item: any) => {
       return item.order_detail.map((item2: any) => item2.product.images && (item2.product.images = this.configService.get('SERVER_HOST') + '/upload/' + item2.product.images))
     })
-    this.orderGetway.handleGetOrderToDriver(addressByUser, null)
     return addressByUser;
   }
   async findByRes(restaurantid: number): Promise<Order[]> {
@@ -79,11 +83,11 @@ export class OrderService {
       .leftJoinAndSelect('order.order_detail', 'order_detail', 'order.id = order_detail.orderid')
       .leftJoinAndSelect('order_detail.product', 'product', 'order_detail.productId = product.id')
       .where('restaurantid = :restaurantid', { restaurantid })
+      .orderBy('order.created_at', 'DESC')
     const addressByUser = await builder.getMany();
     addressByUser.map((item: any) => {
       return item.order_detail.map((item2: any) => item2.product.images && (item2.product.images = this.configService.get('SERVER_HOST') + '/upload/' + item2.product.images))
     })
-    this.orderGetway.handleGetOrderTo(addressByUser, restaurantid)
     return addressByUser;
   }
   async findByClient(userid: number): Promise<Order[]> {
@@ -96,8 +100,8 @@ export class OrderService {
       .leftJoinAndSelect('order.order_detail', 'order_detail', 'order.id = order_detail.orderid')
       .leftJoinAndSelect('order_detail.product', 'product', 'order_detail.productId = product.id')
       .where('userid = :userid', { userid })
+      .orderBy('order.created_at', 'DESC')
     const addressByUser = await builder.getMany();
-    this.orderGetway.handleGetOrderTo(addressByUser, userid)
     return addressByUser;
   }
   async findByDriver(driverid: number): Promise<Order[]> {
@@ -110,8 +114,8 @@ export class OrderService {
       .leftJoinAndSelect('order.order_detail', 'order_detail', 'order.id = order_detail.orderid')
       .leftJoinAndSelect('order_detail.product', 'product', 'order_detail.productId = product.id')
       .where('driverid = :driverid', { driverid })
+      .orderBy('order.created_at', 'DESC')
     const addressByUser = await builder.getMany();
-    this.orderGetway.handleGetOrderTo(addressByUser, driverid)
     return addressByUser;
   }
 
@@ -121,7 +125,10 @@ export class OrderService {
 
   async update(id: number, updateOrderDto: UpdateOderDto, userId?: number): Promise<any> {
     console.log('updateOrderDto', updateOrderDto);
-    if (updateOrderDto.statusid == 4) {
+    let statusid = updateOrderDto.statusid
+    let restaurantid = updateOrderDto.restaurantid
+    let clientid = updateOrderDto.clientid
+    if (statusid == 4) {
       updateOrderDto.driverid = userId
     }
     console.log('updateOrderDto.driverid', updateOrderDto.driverid);
@@ -130,8 +137,7 @@ export class OrderService {
     console.log('driver', driver);
 
     const statusOrder = await this.statusOrderRepository.findOne({ where: { id: updateOrderDto.statusid } });
-    let restaurantid = updateOrderDto.restaurantid
-    let clientid = updateOrderDto.clientid
+
     delete updateOrderDto.driverid;
     delete updateOrderDto.statusid;
     delete updateOrderDto.clientid;
@@ -144,12 +150,12 @@ export class OrderService {
     };
     // !updateOrderDto.driverid && delete dataUpdate.driver
     console.log('dataUpdate', dataUpdate);
-
     const update = await this.orderRepository.update(id, dataUpdate);
-    await this.findByRes(restaurantid)
-    // await this.findByClient(clientid)
-    await this.findOrderNeedDriver(3)
-    driver && await this.findByDriver(driver.id)
+    if (statusid == 3) {
+      this.orderGetway.handleGetOrderByDriver()
+    }
+    this.orderGetway.handleGetOrder(restaurantid)
+    this.orderGetway.handleGetOrder(clientid)
     return update;
   }
 
