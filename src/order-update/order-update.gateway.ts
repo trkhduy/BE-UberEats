@@ -39,7 +39,11 @@ export class OrderUpdateGateway implements OnGatewayConnection {
     socket.join(socket.data.userid);
 
   }
+  async handleGetMessage(to?: string | number, message?: string) {
+    console.log(to);
 
+    this.server.to([String(to)]).emit("GetMessage", message)
+  }
   @SubscribeMessage('GetOrder')
   async handleGetOrder(to?: string | number) {
     console.log('to', to);
@@ -51,6 +55,7 @@ export class OrderUpdateGateway implements OnGatewayConnection {
 
     this.server.to([]).emit("GetOrderByDriver", 'update order')
   }
+
   // @SubscribeMessage('GetOrderRestaurant')
   // async handleGetOrderTo(orderData: any, to: number) {
   //   try {

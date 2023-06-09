@@ -8,7 +8,6 @@ import { Restaurant } from 'src/restaurant/entities/restaurant.entity';
 import { User } from 'src/user/entities/user.entity';
 import { UserAddress } from 'src/user_address/entities/user_address.entity';
 import { StatusOder } from 'src/status_oder/entities/status_oder.entity';
-import { log } from 'console';
 import { OrderUpdateGateway } from 'src/order-update/order-update.gateway';
 import { ConfigService } from '@nestjs/config';
 import { Module, forwardRef, Inject } from '@nestjs/common';
@@ -48,6 +47,7 @@ export class OrderService {
     delete newOrder.restaurant.refresh_token;
     console.log('res', restaurantid);
 
+    this.orderGetway.handleGetMessage(restaurantid, 'You have a new order!')
     this.orderGetway.handleGetOrder(restaurantid)
     // this.orderGetway.test()
     return newOrder
@@ -69,7 +69,7 @@ export class OrderService {
     id && builder.andWhere('driver.id=:id', { id })
     const addressByUser = await builder.getMany();
     console.log(addressByUser);
-    
+
     addressByUser.map((item: any) => {
       return item.order_detail.map((item2: any) => item2.product.images && (item2.product.images = this.configService.get('SERVER_HOST') + '/upload/' + item2.product.images))
     })
@@ -102,8 +102,10 @@ export class OrderService {
       .leftJoinAndSelect('order.driver', 'driver', 'order.driverid = driver.id')
       .leftJoinAndSelect('order.order_detail', 'order_detail', 'order.id = order_detail.orderid')
       .leftJoinAndSelect('order_detail.product', 'product', 'order_detail.productId = product.id')
-      .where('userid = :userid', { userid })
+      .where('order.userid = :userid', { userid })
       .orderBy('order.created_at', 'DESC')
+    console.log(builder.getQuery());
+
     const addressByUser = await builder.getMany();
     return addressByUser;
   }
@@ -157,8 +159,15 @@ export class OrderService {
     if (statusid == 3) {
       this.orderGetway.handleGetOrderByDriver()
     }
+    if (statusid == 2) {
+      this.orderGetway.handleGetMessage(clientid, "Your order has been confirmed")
+    }
+    if (statusid == 5) {
+      this.orderGetway.handleGetMessage(clientid, "Order has been delivery")
+    }
     this.orderGetway.handleGetOrder(restaurantid)
     this.orderGetway.handleGetOrder(clientid)
+
     return update;
   }
 
