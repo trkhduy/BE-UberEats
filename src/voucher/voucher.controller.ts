@@ -39,7 +39,6 @@ export class VoucherController {
     images: Express.Multer.File,
     @Req() req: Request & { user: any }
   ) {
-    console.log(createVoucherDto);
 
     if (!images.filename) {
       throw new BadRequestException('thiếu ảnh r kìa');
@@ -78,7 +77,7 @@ export class VoucherController {
         builder.orderBy('voucher.discount', sortBy);
       }
     }
-    
+
     const vouchers = await builder.getMany();
     if (vouchers.length > 0) {
       vouchers.forEach((voucher) => {
