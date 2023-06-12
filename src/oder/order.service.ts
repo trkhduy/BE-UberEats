@@ -107,6 +107,9 @@ export class OrderService {
     console.log(builder.getQuery());
 
     const addressByUser = await builder.getMany();
+    addressByUser.map((item: any) => {
+      return item.order_detail.map((item2: any) => item2.product.images && (item2.product.images = this.configService.get('SERVER_HOST') + '/upload/' + item2.product.images))
+    })
     return addressByUser;
   }
   async findByDriver(driverid: number): Promise<Order[]> {

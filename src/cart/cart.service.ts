@@ -3,7 +3,7 @@ import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cart } from './entities/cart.entity';
-import { DeleteResult, Repository } from 'typeorm';
+import { DeleteResult, In, Repository } from 'typeorm';
 import { Product } from 'src/product/entities/product.entity';
 import { User } from 'src/user/entities/user.entity';
 
@@ -85,5 +85,9 @@ export class CartService {
   async remove(id: number): Promise<DeleteResult> {
     const destroyed = await this.cartrepository.delete(id)
     return destroyed
+  }
+  async removeMany(id: any) {
+    const removeAll = await this.cartrepository.delete({ id: In(id) })
+    return removeAll
   }
 }

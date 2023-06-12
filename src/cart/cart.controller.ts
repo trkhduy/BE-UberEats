@@ -52,4 +52,14 @@ export class CartController {
       result: destroyed
     }
   }
+  @Post('/deleteMany')
+  async removeAll(@Body() ids: any) {
+    const destroyed = await this.cartService.removeMany(ids);
+    return {
+      statuscode: 200,
+      message: "xoa thành công",
+      result: destroyed
+    }
+  }
+
 }
